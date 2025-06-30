@@ -8,8 +8,9 @@ export default function Home() {
       </h1>
       
       <p className="text-lg mb-6 text-gray-800">
-        I'm gonna build Shaflix with NextJS
+        I&apos;m gonna build Shaflix with NextJS
       </p>
+
 
       <Button variant="default">
         Lets Begin

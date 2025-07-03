@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 
 export default function Home() {
   return (
@@ -11,8 +11,7 @@ export default function Home() {
         I&apos;m gonna build Shaflix with NextJS
       </p>
 
-
-      <Button variant="default">
+      <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
         Lets Begin
       </Button>
     </div>

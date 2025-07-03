@@ -17,11 +17,9 @@ export default function Home() {
       <SearchBar />
       <MoodSelector mood={mood} setMood={setMood} />
 
-      <h2 className="text-xl font-semibold mt-5">
+      <h2 className="text-2xl font-bold mt-5 m-4">
         Top {mood} Movies
       </h2>
-      
-      {/* Movie Grid Goes Here */}
 
     </div>
   );

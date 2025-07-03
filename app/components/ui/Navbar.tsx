@@ -5,7 +5,7 @@ export default function Navbar() {
     <div className="flex text-lg flex-row text-gray-300 justify-end gap-10 mt-7">
       
       <Link href="/" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
-        Home
+        Discover
       </Link>
 
       <Link href="/favorites" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">

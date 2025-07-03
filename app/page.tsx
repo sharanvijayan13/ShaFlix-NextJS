@@ -1,19 +1,28 @@
-import { Button } from "@/app/components/ui/button";
+"use client"
+
+import { useState } from "react";
+import Navbar from "./components/ui/Navbar";
+import SearchBar from "./components/ui/SearchBar";
+import MoodSelector from "./components/ui/MoodSelector";
 
 export default function Home() {
-  return (
-    <div className="h-screen flex flex-col justify-center items-center bg-gray-100">
-      <h1 className="text-8xl font-bold mb-4 text-center">
-        Shaflix
-      </h1>
-      
-      <p className="text-lg mb-6 text-gray-800">
-        I&apos;m gonna build Shaflix with NextJS
-      </p>
+  const [mood, setMood] = useState("Popular");
 
-      <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
-        Lets Begin
-      </Button>
+  return (
+    <div className="flex flex-col p-13 bg-black text-white h-screen">
+      
+      <h1 className="text-2xl font-bold mb-5">Shaflix: Mood-Based Movie Recommender</h1>
+      
+      <Navbar />
+      <SearchBar />
+      <MoodSelector mood={mood} setMood={setMood} />
+
+      <h2 className="text-xl font-semibold mt-5">
+        Top {mood} Movies
+      </h2>
+      
+      {/* Movie Grid Goes Here */}
+
     </div>
   );
 }

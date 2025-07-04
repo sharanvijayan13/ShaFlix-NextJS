@@ -10,7 +10,7 @@ export default function Navbar() {
 
       <Link href="/favorites" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
         Favorites
-      </Link>
+      </Link> 
 
       <Link href="/watchlist" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
         Watchlist

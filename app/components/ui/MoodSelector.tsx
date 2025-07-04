@@ -4,25 +4,33 @@ interface MoodSelectorProps {
 }
 
 export default function MoodSelector({ mood, setMood }: MoodSelectorProps) {
+  const moods = [
+    "popular",
+    "action",
+    "comedy",
+    "horror",
+    "romantic",
+    "scifi",
+    "animation",
+    "drama",
+    "crime",
+    "mystery",
+    "thriller",
+  ];
+
   return (
-    <div className="flex items-center p-4 md:p-8 gap-8 relative">
+    <div className="my-4">
       <select
         id="mood-select"
         value={mood}
         onChange={(e) => setMood(e.target.value)}
-        className="p-3 text-sm w-full max-w-[300px] bg-[#2a2a2a] text-[#f1f1f1] border border-[#333] rounded-md outline-none mb-5"
+        className="bg-gray-800 text-white p-2 rounded w-full max-w-xs"
       >
-        <option value="Popular">Popular</option>
-        <option value="Happy">Happy</option>
-        <option value="Sad">Sad</option>
-        <option value="Excited">Excited</option>
-        <option value="Romantic">Romantic</option>
-        <option value="Thrilling">Thrilling</option>
-        <option value="Funny">Funny</option>
-        <option value="Action">Action</option>
-        <option value="Drama">Drama</option>
-        <option value="Fantasy">Fantasy</option>
-        <option value="Scary">Scary</option>
+        {moods.map((m) => (
+          <option key={m} value={m}>
+            {m.charAt(0).toUpperCase() + m.slice(1)}
+          </option>
+        ))}
       </select>
     </div>
   );

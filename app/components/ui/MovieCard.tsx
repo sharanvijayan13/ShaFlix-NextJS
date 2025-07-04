@@ -18,8 +18,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
     removeFromWatchlist,
     isInWatchlist,
     addToWatched,
-    removeFromWatched,
-    isWatched,
+    removeFromWatched
   } = useMovieContext();
 
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";

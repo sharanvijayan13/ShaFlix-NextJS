@@ -6,7 +6,6 @@ import SearchBar from "./components/ui/SearchBar";
 import MoodSelector from "./components/ui/MoodSelector";
 import MovieCard from "./components/ui/MovieCard";
 import { fetchMovies } from "./lib/api";
-import Image from "next/image";
 import { Movie } from "./types";
 
 function Pagination({ page, totalPages, setPage }: { page: number; totalPages: number; setPage: (p: number) => void }) {

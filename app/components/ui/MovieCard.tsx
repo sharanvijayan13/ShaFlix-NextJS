@@ -22,9 +22,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
     removeFromWatched,
     isWatched,
   } = useMovieContext();
-  // const router = useRouter(); // No navigation on action
 
-  // Compose title with year
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
   const titleWithYear = `${movie.title} (${year})`;
   const description = movie.overview || "No description available.";
@@ -34,7 +32,6 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const inWatchlist = isInWatchlist(movie.id);
   const watched = isWatched(movie.id);
 
-  // Handlers for actions (no navigation)
   const handleAddToFavorites = () => {
     addToFavorites(movie);
   };
@@ -69,7 +66,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
           <span className="text-base text-white font-semibold">{rating}</span>
         </div>
         <div className="flex items-center gap-6 mt-auto pb-1">
-          {/* Discover page: add to fav/watchlist */}
+
           {page === "discover" && (
             <>
               {favorite ? (
@@ -84,7 +81,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
               )}
             </>
           )}
-          {/* Favorites page: fav and watchlist */}
+
           {page === "favs" && (
             <>
               <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={() => removeFromFavorites(movie.id)} />
@@ -95,14 +92,14 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
               )}
             </>
           )}
-          {/* Watchlist page: watchlist and watched */}
+
           {page === "watchlist" && (
             <>
               <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={() => removeFromWatchlist(movie.id)} />
               <EyeIconSolid className="w-6 h-6 text-green-500 hover:text-green-700 cursor-pointer" onClick={handleWatched} />
             </>
           )}
-          {/* Watched page: unwatch and diary */}
+
           {page === "watched" && (
             <>
               <EyeSlashIconSolid className="w-6 h-6 text-yellow-400 hover:text-yellow-600 cursor-pointer" onClick={handleUnwatch} />

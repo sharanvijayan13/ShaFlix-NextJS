@@ -7,8 +7,17 @@ import MoodSelector from "./components/ui/MoodSelector";
 import MovieCard from "./components/ui/MovieCard";
 import { fetchMovies } from "./lib/api";
 import { Movie } from "./types";
+import { useSearchParams, useRouter } from "next/navigation";
 
-function Pagination({ page, totalPages, setPage }: { page: number; totalPages: number; setPage: (p: number) => void }) {
+function Pagination({
+  page,
+  totalPages,
+  setPage,
+}: {
+  page: number;
+  totalPages: number;
+  setPage: (p: number) => void;
+}) {
   const maxButtons = 10;
   let start = Math.max(1, page - Math.floor(maxButtons / 2));
   let end = start + maxButtons - 1;
@@ -33,7 +42,7 @@ function Pagination({ page, totalPages, setPage }: { page: number; totalPages: n
           key={p}
           className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${
             p === page
-              ? "bg-white text-green-600 border-white" 
+              ? "bg-white text-green-600 border-white"
               : "bg-green-600 text-white hover:bg-green-700"
           }`}
           onClick={() => setPage(p)}
@@ -53,6 +62,9 @@ function Pagination({ page, totalPages, setPage }: { page: number; totalPages: n
 }
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [mood, setMood] = useState("popular");
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,11 +72,27 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
 
+  // Sync state with URL params on mount
+  useEffect(() => {
+    const moodParam = searchParams.get("mood") || "popular";
+    const queryParam = searchParams.get("query") || "";
+    const pageParam = parseInt(searchParams.get("page") || "1", 10);
+
+    setMood(moodParam);
+    setSearch(queryParam);
+    setPage(pageParam);
+  }, []);
+
+  // Fetch movies on change
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
       try {
-        const { results, total_pages } = await fetchMovies(mood.toLowerCase(), page, search);
+        const { results, total_pages } = await fetchMovies(
+          mood.toLowerCase(),
+          page,
+          search
+        );
         setMovies(results);
         setTotalPages(total_pages);
       } catch (err) {
@@ -74,8 +102,17 @@ export default function Home() {
       }
     };
     getMovies();
+
+    // Update URL Params
+    const params = new URLSearchParams();
+    if (mood && mood !== "popular") params.set("mood", mood);
+    if (search) params.set("query", search);
+    if (page > 1) params.set("page", page.toString());
+
+    router.replace(`/?${params.toString()}`);
   }, [mood, page, search]);
 
+  // Reset to page 1 if mood/search changes
   useEffect(() => {
     setPage(1);
   }, [mood, search]);

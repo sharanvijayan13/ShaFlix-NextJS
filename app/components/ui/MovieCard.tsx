@@ -3,6 +3,7 @@ import { useMovieContext } from "@/app/contexts/MovieContext";
 import { HeartIcon as HeartIconOutline, BookmarkIcon as BookmarkIconOutline, StarIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid, BookmarkIcon as BookmarkIconSolid, EyeIcon as EyeIconSolid, EyeSlashIcon as EyeSlashIconSolid } from "@heroicons/react/24/solid";
 import { Movie } from "../../types";
+import toast from 'react-hot-toast';
 
 interface MovieCardProps {
   movie: Movie;
@@ -18,7 +19,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
     removeFromWatchlist,
     isInWatchlist,
     addToWatched,
-    removeFromWatched
+    removeFromWatched,
   } = useMovieContext();
 
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
@@ -31,17 +32,29 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
   const handleAddToFavorites = () => {
     addToFavorites(movie);
+    toast.success("Added to favorites!");
+  };
+  const handleRemoveFromFavorites = () => {
+    removeFromFavorites(movie.id);
+    toast("Removed from favorites", { icon: "❌" });
   };
   const handleAddToWatchlist = () => {
     addToWatchlist(movie);
+    toast.success("Added to watchlist!");
+  };
+  const handleRemoveFromWatchlist = () => {
+    removeFromWatchlist(movie.id);
+    toast("Removed from watchlist", { icon: "❌" });
   };
   const handleUnwatch = () => {
     removeFromWatched(movie.id);
     addToWatchlist(movie);
+    toast("Moved back to watchlist");
   };
   const handleWatched = () => {
     addToWatched(movie);
     removeFromWatchlist(movie.id);
+    toast.success("Marked as watched!");
   };
 
   return (
@@ -67,12 +80,12 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
           {page === "discover" && (
             <>
               {favorite ? (
-                <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" />
+                <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={handleRemoveFromFavorites} />
               ) : (
                 <HeartIconOutline className="w-6 h-6 text-white hover:text-red-500 cursor-pointer" onClick={handleAddToFavorites} />
               )}
               {inWatchlist ? (
-                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} />
+                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
               ) : (
                 <BookmarkIconOutline className="w-6 h-6 text-white hover:text-[#0974e5] cursor-pointer" onClick={handleAddToWatchlist} />
               )}
@@ -81,18 +94,18 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
           {page === "favs" && (
             <>
-              <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={() => removeFromFavorites(movie.id)} />
+              <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={handleRemoveFromFavorites} />
               {inWatchlist ? (
-                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={() => removeFromWatchlist(movie.id)} />
+                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
               ) : (
-                <BookmarkIconOutline className="w-6 h-6 text-white hover:text-[#0974e5] cursor-pointer" onClick={() => addToWatchlist(movie)} />
+                <BookmarkIconOutline className="w-6 h-6 text-white hover:text-[#0974e5] cursor-pointer" onClick={handleAddToWatchlist} />
               )}
             </>
           )}
 
           {page === "watchlist" && (
             <>
-              <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={() => removeFromWatchlist(movie.id)} />
+              <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
               <EyeIconSolid className="w-6 h-6 text-green-500 hover:text-green-700 cursor-pointer" onClick={handleWatched} />
             </>
           )}

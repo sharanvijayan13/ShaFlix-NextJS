@@ -20,7 +20,7 @@ function Pagination({ page, totalPages, setPage }: { page: number; totalPages: n
   for (let i = start; i <= end; i++) pages.push(i);
 
   return (
-    <div className="flex justify-center items-center gap-3 mt-6">
+    <div className="flex justify-center items-center gap-3 mt-12 mb-10">
       <button
         className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
         onClick={() => setPage(1)}
@@ -101,7 +101,7 @@ export default function Home() {
         <p className="m-4">Loading movies......</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl mx-auto w-full py-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl ml-1.3 w-full py-1">
             {movies.map((movie) => (
               <MovieCard key={movie.id} movie={movie} page="discover" />
             ))}

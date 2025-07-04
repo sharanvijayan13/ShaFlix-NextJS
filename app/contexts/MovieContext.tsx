@@ -1,12 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
-
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string;
-}
+import { Movie } from "../types";
 
 interface MovieContextType {
   favorites: Movie[];

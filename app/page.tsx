@@ -98,7 +98,6 @@ export default function Home() {
     getMovies();
   }, [mood, page, search]);
 
-  // Reset to page 1 when mood or search changes
   useEffect(() => {
     setPage(1);
   }, [mood, search]);
@@ -110,7 +109,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col p-6 bg-black text-white min-h-screen">
-      <h1 className="text-2xl font-bold mb-5">
+      <h1 className="text-3xl font-bold mb-5">
         Shaflix: Mood-Based Movie Recommender
       </h1>
 
@@ -121,7 +120,7 @@ export default function Home() {
       <h2 className="text-2xl font-bold mt-5 m-4">{heading}</h2>
 
       {loading ? (
-        <p className="m-4">Loading movies...</p>
+        <p className="m-4">Loading movies......</p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl mx-auto w-full py-1">

@@ -17,7 +17,7 @@ export default function Home() {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl mx-auto w-full py-1">
         {watchlist.length === 0 ? (
-          <p className="text-center col-span-full">No movies in watchlist.</p>
+          <p className="text-center col-span-full mt-1.5">No movies in watchlist.</p>
         ) : (
           watchlist.map((movie) => (
             <MovieCard key={movie.id} movie={movie} page="watchlist" />

@@ -98,7 +98,7 @@ export default function Home() {
       <h2 className="text-2xl font-bold mt-5 m-4">{heading}</h2>
 
       {loading ? (
-        <p className="m-4">Loading movies......</p>
+        <p className="m-5 mt-1.5 text-2xl">Loading movies......</p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl ml-1.3 w-full py-1">

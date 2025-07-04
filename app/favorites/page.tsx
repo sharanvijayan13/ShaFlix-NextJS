@@ -17,7 +17,7 @@ export default function Home() {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl mx-auto w-full py-1">
         {favorites.length === 0 ? (
-          <p className="text-center col-span-full">No favorites yet.</p>
+          <p className="text-center col-span-full mt-1.5">No favorites yet.</p>
         ) : (
           favorites.map((movie) => (
             <MovieCard key={movie.id} movie={movie} page="favs" />

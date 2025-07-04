@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { useMovieContext } from "@/app/contexts/MovieContext";
-import { useRouter } from "next/navigation";
-import { HeartIcon as HeartIconOutline, BookmarkIcon as BookmarkIconOutline, StarIcon, EyeIcon, EyeSlashIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconOutline, BookmarkIcon as BookmarkIconOutline, StarIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid, BookmarkIcon as BookmarkIconSolid, EyeIcon as EyeIconSolid, EyeSlashIcon as EyeSlashIconSolid } from "@heroicons/react/24/solid";
 import { Movie } from "../../types";
 
@@ -30,7 +29,6 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
   const favorite = isFavorite(movie.id);
   const inWatchlist = isInWatchlist(movie.id);
-  const watched = isWatched(movie.id);
 
   const handleAddToFavorites = () => {
     addToFavorites(movie);

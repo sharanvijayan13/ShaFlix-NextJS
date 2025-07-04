@@ -6,15 +6,8 @@ import SearchBar from "./components/ui/SearchBar";
 import MoodSelector from "./components/ui/MoodSelector";
 import MovieCard from "./components/ui/MovieCard";
 import { fetchMovies } from "./lib/api";
-
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string;
-  release_date: string;
-  overview?: string;
-  vote_average?: number;
-}
+import Image from "next/image";
+import { Movie } from "./types";
 
 function Pagination({ page, totalPages, setPage }: { page: number; totalPages: number; setPage: (p: number) => void }) {
   const maxButtons = 10;
@@ -67,20 +60,6 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
-
-  const moods = [
-    "popular",
-    "action",
-    "comedy",
-    "horror",
-    "romantic",
-    "scifi",
-    "animation",
-    "drama",
-    "crime",
-    "mystery",
-    "thriller",
-  ];
 
   useEffect(() => {
     const getMovies = async () => {

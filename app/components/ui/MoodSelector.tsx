@@ -19,12 +19,12 @@ export default function MoodSelector({ mood, setMood }: MoodSelectorProps) {
   ];
 
   return (
-    <div className="my-4">
+    <div className="my-4 px-4 md:px-0">
       <select
         id="mood-select"
         value={mood}
         onChange={(e) => setMood(e.target.value)}
-        className="bg-gray-800 text-white p-2 rounded w-full max-w-xs"
+        className="bg-gray-800 text-white p-2 rounded w-full max-w-xs mx-auto md:mx-0 block"
       >
         {moods.map((m) => (
           <option key={m} value={m}>

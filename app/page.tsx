@@ -81,7 +81,7 @@ export default function Home() {
     setMood(moodParam);
     setSearch(queryParam);
     setPage(pageParam);
-  }, []);
+  }, [searchParams]);
 
   // Fetch movies on change
   useEffect(() => {
@@ -110,7 +110,7 @@ export default function Home() {
     if (page > 1) params.set("page", page.toString());
 
     router.replace(`/?${params.toString()}`);
-  }, [mood, page, search]);
+  }, [mood, page, search, router]);
 
   // Reset to page 1 if mood/search changes
   useEffect(() => {
@@ -123,8 +123,8 @@ export default function Home() {
     : `Top ${mood} movies`;
 
   return (
-    <div className="flex flex-col p-6 bg-black text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-5">
+    <div className="flex flex-col p-4 md:p-6 bg-black text-white min-h-screen">
+      <h1 className="text-2xl md:text-3xl font-bold mb-5">
         Shaflix: Mood-Based Movie Recommender
       </h1>
 
@@ -132,13 +132,13 @@ export default function Home() {
       <SearchBar value={search} onChange={setSearch} />
       <MoodSelector mood={mood} setMood={setMood} />
 
-      <h2 className="text-2xl font-bold mt-5 m-4">{heading}</h2>
+      <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">{heading}</h2>
 
       {loading ? (
-        <p className="m-5 mt-1.5 text-2xl">Loading movies......</p>
+        <p className="m-5 mt-1.5 text-xl md:text-2xl">Loading movies......</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl ml-1.3 w-full py-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
             {movies.map((movie) => (
               <MovieCard key={movie.id} movie={movie} page="discover" />
             ))}

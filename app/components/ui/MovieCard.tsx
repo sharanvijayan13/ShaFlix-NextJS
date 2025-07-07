@@ -3,6 +3,7 @@ import { useMovieContext } from "@/app/contexts/MovieContext";
 import { HeartIcon as HeartIconOutline, BookmarkIcon as BookmarkIconOutline, StarIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid, BookmarkIcon as BookmarkIconSolid, EyeIcon as EyeIconSolid, EyeSlashIcon as EyeSlashIconSolid } from "@heroicons/react/24/solid";
 import { Movie } from "../../types";
+import Image from "next/image";
 import toast from 'react-hot-toast';
 
 interface MovieCardProps {
@@ -59,9 +60,11 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
   return (
     <div className="bg-[#18181c] rounded-xl shadow-lg flex flex-col w-65 min-h-[530px] overflow-hidden border border-[#23232a]">
-      <img
+      <Image 
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
         alt={movie.title}
+        width={500}
+        height={750}
         className="w-full h-96 object-cover"
       />
       <div className="flex flex-col flex-1 px-5 py-4">

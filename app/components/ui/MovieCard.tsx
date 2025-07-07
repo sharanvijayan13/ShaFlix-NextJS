@@ -9,9 +9,10 @@ import toast from 'react-hot-toast';
 interface MovieCardProps {
   movie: Movie;
   page: "discover" | "favs" | "watchlist" | "watched";
+  priority?: boolean;
 }
 
-const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
+const MovieCard: FC<MovieCardProps> = ({ movie, page, priority = false }) => {
   const {
     addToFavorites,
     removeFromFavorites,
@@ -66,6 +67,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
         width={500}
         height={750}
         className="w-full h-96 object-cover"
+        priority={priority}
       />
       <div className="flex flex-col flex-1 px-5 py-4">
         <h3 className="text-[13px] font-extrabold text-white text-center mb-2 leading-tight">

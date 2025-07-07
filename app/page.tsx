@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Navbar from "./components/ui/Navbar";
@@ -189,8 +190,8 @@ export default function Home() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} page="discover" />
+            {movies.map((movie, i) => (
+              <MovieCard key={movie.id} movie={movie} page="discover" priority={i === 0} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />

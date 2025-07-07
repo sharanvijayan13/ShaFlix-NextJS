@@ -61,16 +61,28 @@ function Pagination({
   );
 }
 
-export default function HomeContent() {
+export default function HomeContent({
+  initialMovies = [],
+  initialTotalPages = 1,
+  initialMood = "popular",
+  initialPage = 1,
+  initialSearch = "",
+}: {
+  initialMovies?: Movie[];
+  initialTotalPages?: number;
+  initialMood?: string;
+  initialPage?: number;
+  initialSearch?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [mood, setMood] = useState("popular");
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState("");
+  const [mood, setMood] = useState(initialMood);
+  const [movies, setMovies] = useState<Movie[]>(initialMovies);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(initialPage);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+  const [search, setSearch] = useState(initialSearch);
 
   useEffect(() => {
     const moodParam = searchParams.get("mood") || "popular";

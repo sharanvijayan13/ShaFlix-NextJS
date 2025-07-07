@@ -15,7 +15,12 @@ export const fetchMovies = async (
     params.set("query", query);
   }
 
-  const url = `/api/movies?${params.toString()}`;
+  // Use absolute URL on server, relative on client
+  const isServer = typeof window === "undefined";
+  const baseUrl = isServer
+    ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    : "";
+  const url = `${baseUrl}/api/movies?${params.toString()}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch movies");

@@ -5,7 +5,7 @@ interface SearchBarProps {
 
 export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
-    <div className="relative w-full max-w-[410px] m-4 md:m-5 mx-auto md:ml-auto md:mr-0 flex justify-center md:justify-end">
+    <div className="relative w-full max-w-[370px] m-4 md:m-5 mx-auto md:ml-auto md:mr-0 flex justify-center md:justify-end">
       <input
         type="text"
         placeholder="Search for movies..."

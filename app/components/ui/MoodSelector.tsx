@@ -24,7 +24,7 @@ export default function MoodSelector({ mood, setMood }: MoodSelectorProps) {
         id="mood-select"
         value={mood}
         onChange={(e) => setMood(e.target.value)}
-        className="bg-gray-800 text-white p-2 rounded w-full max-w-xs mx-auto md:mx-0 block"
+        className="bg-gray-800 text-white p-2 rounded w-full max-w-sm mx-auto md:mx-0 block"
       >
         {moods.map((m) => (
           <option key={m} value={m}>

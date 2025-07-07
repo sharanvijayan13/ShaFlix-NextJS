@@ -132,17 +132,18 @@ export default function Home() {
       <SearchBar value={search} onChange={setSearch} />
       <MoodSelector mood={mood} setMood={setMood} />
 
-      <h2 className="text-2xl font-bold mt-5 m-4">{heading}</h2>
+      <h2 className="text-sm md:text-2xl font-bold mt-5 m-4 text-center md:text-left">{heading}</h2>
 
       {loading ? (
         <p className="m-5 mt-1.5 text-2xl">Loading movies......</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl ml-1.3 w-full py-1">
+          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
             {movies.map((movie) => (
               <MovieCard key={movie.id} movie={movie} page="discover" />
             ))}
           </div>
+
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
       )}

@@ -78,7 +78,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Hamburger Button */}
-      <div className="md:hidden mt-7">
+      <div className="md:hidden mt-1">
         <button
           onClick={toggleMenu}
           className="hamburger p-2 text-gray-300 hover:text-[#1db954] transition-colors duration-300"

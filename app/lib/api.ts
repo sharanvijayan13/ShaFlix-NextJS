@@ -41,6 +41,6 @@ export const fetchMovies = async (
 
   const data = await res.json();
   console.log("API Response Data:", data);
-
+  
   return { results: data.results, total_pages: data.total_pages };
 };

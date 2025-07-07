@@ -15,11 +15,17 @@ export const fetchMovies = async (
     params.set("query", query);
   }
 
-  // Use absolute URL on server, relative on client
   const isServer = typeof window === "undefined";
   const baseUrl = isServer
-    ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    ? process.env.NEXT_PUBLIC_BASE_URL
     : "";
+
+  if (isServer && !baseUrl) {
+    throw new Error(
+      "Environment variable NEXT_PUBLIC_BASE_URL is not set. Please configure it in Vercel."
+    );
+  }
+
   const url = `${baseUrl}/api/movies?${params.toString()}`;
 
   const res = await fetch(url);

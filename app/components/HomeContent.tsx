@@ -1,15 +1,67 @@
 "use client";
-import React, { useEffect, useState, Suspense } from "react";
+
+import { useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
 import SearchBar from "./ui/SearchBar";
 import MoodSelector from "./ui/MoodSelector";
 import MovieCard from "./ui/MovieCard";
-import Pagination from "./ui/Pagination";
 import { fetchMovies } from "../lib/api";
 import { Movie } from "../types";
 import { useSearchParams, useRouter } from "next/navigation";
 
-const MainAppInner = () => {
+function Pagination({
+  page,
+  totalPages,
+  setPage,
+}: {
+  page: number;
+  totalPages: number;
+  setPage: (p: number) => void;
+}) {
+  const maxButtons = 10;
+  let start = Math.max(1, page - Math.floor(maxButtons / 2));
+  let end = start + maxButtons - 1;
+  if (end > totalPages) {
+    end = totalPages;
+    start = Math.max(1, end - maxButtons + 1);
+  }
+  const pages = [];
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="flex justify-center items-center gap-3 mt-12 mb-10">
+      <button
+        className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+        onClick={() => setPage(1)}
+        disabled={page === 1}
+      >
+        «
+      </button>
+      {pages.map((p) => (
+        <button
+          key={p}
+          className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${
+            p === page
+              ? "bg-white text-green-600 border-white"
+              : "bg-green-600 text-white hover:bg-green-700"
+          }`}
+          onClick={() => setPage(p)}
+        >
+          {p}
+        </button>
+      ))}
+      <button
+        className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+        onClick={() => setPage(totalPages)}
+        disabled={page === totalPages}
+      >
+        »
+      </button>
+    </div>
+  );
+}
+
+export default function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,7 +72,6 @@ const MainAppInner = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
 
-  // Sync state with URL params on mount
   useEffect(() => {
     const moodParam = searchParams.get("mood") || "popular";
     const queryParam = searchParams.get("query") || "";
@@ -31,7 +82,6 @@ const MainAppInner = () => {
     setPage(pageParam);
   }, [searchParams]);
 
-  // Fetch movies on change
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
@@ -51,7 +101,6 @@ const MainAppInner = () => {
     };
     getMovies();
 
-    // Update URL Params
     const params = new URLSearchParams();
     if (mood && mood !== "popular") params.set("mood", mood);
     if (search) params.set("query", search);
@@ -60,7 +109,6 @@ const MainAppInner = () => {
     router.replace(`/?${params.toString()}`);
   }, [mood, page, search, router]);
 
-  // Reset to page 1 if mood/search changes
   useEffect(() => {
     setPage(1);
   }, [mood, search]);
@@ -71,34 +119,32 @@ const MainAppInner = () => {
     : `Top ${mood} movies`;
 
   return (
-    <div className="flex flex-col p-4 md:p-6 bg-black text-white min-h-screen">
-      <h1 className="text-2xl md:text-3xl font-bold mb-5">
+    <div className="flex flex-col p-6 bg-black text-white min-h-screen">
+      <h1 className="text-3xl font-bold mb-5">
         Shaflix: Mood-Based Movie Recommender
       </h1>
+
       <Navbar />
       <SearchBar value={search} onChange={setSearch} />
       <MoodSelector mood={mood} setMood={setMood} />
-      <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">{heading}</h2>
+
+      <h2 className="text-sm md:text-2xl font-bold mt-5 m-4 text-center md:text-left">
+        {heading}
+      </h2>
+
       {loading ? (
-        <p className="m-5 mt-1.5 text-xl md:text-2xl">Loading movies......</p>
+        <p className="m-5 mt-1.5 text-2xl">Loading movies......</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
+          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
             {movies.map((movie) => (
               <MovieCard key={movie.id} movie={movie} page="discover" />
             ))}
           </div>
+
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
       )}
     </div>
   );
-};
-
-const MainApp = () => (
-  <Suspense fallback={<div className="flex flex-col p-4 md:p-6 bg-black text-white min-h-screen"><h1 className="text-2xl md:text-3xl font-bold mb-5">Shaflix: Mood-Based Movie Recommender</h1><p className="m-5 mt-1.5 text-xl md:text-2xl">Loading...</p></div>}>
-    <MainAppInner />
-  </Suspense>
-);
-
-export default MainApp; 
+}

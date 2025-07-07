@@ -49,7 +49,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const handleUnwatch = () => {
     removeFromWatched(movie.id);
     addToWatchlist(movie);
-    toast("Moved back to watchlist");
+    toast("Moved back to watchlist", { icon: "🔙" });
   };
   const handleWatched = () => {
     addToWatched(movie);

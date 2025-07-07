@@ -1,5 +1,3 @@
-"use client"
-
 import Navbar from "../components/ui/Navbar";
 import MovieCard from "../components/ui/MovieCard";
 import { useMovieContext } from "../contexts/MovieContext";

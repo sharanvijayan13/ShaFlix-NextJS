@@ -18,7 +18,7 @@ export const fetchMovies = async (
   page: number = 1,
   query?: string
 ): Promise<{ results: Movie[]; total_pages: number }> => {
-  const apiKey = "cc7e8d83479101895f1c39adc482a27e";
+  const apiKey = `${process.env.NEXT_PUBLIC_TMDB_API_KEY}`;
 
   let url = "";
   if (query && query.trim() !== "") {

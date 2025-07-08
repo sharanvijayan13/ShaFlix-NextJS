@@ -15,7 +15,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
-  // Generate exactly 3 pages around current
+
   const getMobilePages = (): number[] => {
     if (totalPages <= 3) return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (page === 1) return [1, 2, 3];

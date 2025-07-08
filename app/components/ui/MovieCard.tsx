@@ -1,10 +1,17 @@
 import { FC } from "react";
 import { useMovieContext } from "@/app/contexts/MovieContext";
-import { HeartIcon as HeartIconOutline, BookmarkIcon as BookmarkIconOutline, StarIcon, BookOpenIcon } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartIconSolid, BookmarkIcon as BookmarkIconSolid, EyeIcon as EyeIconSolid, EyeSlashIcon as EyeSlashIconSolid } from "@heroicons/react/24/solid";
-import { Movie } from "../../types";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import toast from 'react-hot-toast';
+import { Movie } from "@/app/types";
+import { toast } from "sonner";
+import {
+  Heart,
+  Bookmark,
+  Star,
+  Eye,
+  EyeOff,
+  BookOpen
+} from "lucide-react";
 
 interface MovieCardProps {
   movie: Movie;
@@ -26,14 +33,14 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
   const titleWithYear = `${movie.title} (${year})`;
   const description = movie.overview || "No description available.";
-  const rating = typeof movie.vote_average === 'number' ? movie.vote_average.toFixed(1) : "N/A";
+  const rating = typeof movie.vote_average === "number" ? movie.vote_average.toFixed(1) : "N/A";
 
   const favorite = isFavorite(movie.id);
   const inWatchlist = isInWatchlist(movie.id);
 
   const handleAddToFavorites = () => {
     addToFavorites(movie);
-    toast.success("Added to favorites!");
+    toast.success("Added to favorites!", { icon: "✅" });
   };
   const handleRemoveFromFavorites = () => {
     removeFromFavorites(movie.id);
@@ -41,7 +48,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   };
   const handleAddToWatchlist = () => {
     addToWatchlist(movie);
-    toast.success("Added to watchlist!");
+    toast.success("Added to watchlist!", { icon: "✅" });
   };
   const handleRemoveFromWatchlist = () => {
     removeFromWatchlist(movie.id);
@@ -55,12 +62,12 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const handleWatched = () => {
     addToWatched(movie);
     removeFromWatchlist(movie.id);
-    toast.success("Marked as watched!");
+    toast.success("Marked as watched!", { icon: "✅" });
   };
 
   return (
-    <div className="bg-[#18181c] rounded-xl shadow-lg flex flex-col w-65 min-h-[530px] overflow-hidden border border-[#23232a]">
-      <Image 
+    <Card className="bg-card border shadow-md flex flex-col min-h-[530px] w-64 overflow-hidden">
+      <Image
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
         alt={movie.title}
         width={500}
@@ -68,61 +75,59 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
         className="w-full h-96 object-cover"
         priority
       />
-      <div className="flex flex-col flex-1 px-5 py-4">
-        <h3 className="text-[13px] font-extrabold text-white text-center mb-2 leading-tight">
+      <CardContent className="p-4 flex flex-col flex-1">
+        <h3 className="text-sm font-semibold text-center mb-2 leading-tight">
           {titleWithYear}
         </h3>
-        <p className="text-sm text-white text-left mb-4 line-clamp-3">
-          {description}
-        </p>
+        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>
         <div className="flex items-center gap-2 mb-4">
-          <StarIcon className="w-5 h-5 text-yellow-400" />
-          <span className="text-base text-white font-semibold">{rating}</span>
+          <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+          <span className="text-sm font-medium">{rating}</span>
         </div>
-        <div className="flex items-center gap-6 mt-auto pb-1">
+        <div className="flex items-center gap-5 mt-auto">
 
           {page === "discover" && (
             <>
               {favorite ? (
-                <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={handleRemoveFromFavorites} />
+                <Heart className="w-6 h-6 text-red-500 cursor-pointer" fill="currentColor" onClick={handleRemoveFromFavorites} />
               ) : (
-                <HeartIconOutline className="w-6 h-6 text-white hover:text-red-500 cursor-pointer" onClick={handleAddToFavorites} />
+                <Heart className="w-6 h-6 hover:text-red-500 cursor-pointer" onClick={handleAddToFavorites} />
               )}
               {inWatchlist ? (
-                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
+                <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={handleRemoveFromWatchlist} />
               ) : (
-                <BookmarkIconOutline className="w-6 h-6 text-white hover:text-[#0974e5] cursor-pointer" onClick={handleAddToWatchlist} />
+                <Bookmark className="w-6 h-6 hover:text-blue-500 cursor-pointer" onClick={handleAddToWatchlist} />
               )}
             </>
           )}
 
           {page === "favs" && (
             <>
-              <HeartIconSolid className="w-6 h-6 text-red-500 cursor-pointer" onClick={handleRemoveFromFavorites} />
+              <Heart className="w-6 h-6 text-red-500 cursor-pointer" fill="currentColor" onClick={handleRemoveFromFavorites} />
               {inWatchlist ? (
-                <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
+              <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={handleRemoveFromWatchlist} />
               ) : (
-                <BookmarkIconOutline className="w-6 h-6 text-white hover:text-[#0974e5] cursor-pointer" onClick={handleAddToWatchlist} />
+                <Bookmark className="w-6 h-6 hover:text-blue-500 cursor-pointer" onClick={handleAddToWatchlist} />
               )}
             </>
           )}
 
           {page === "watchlist" && (
             <>
-              <BookmarkIconSolid className="w-6 h-6" style={{ color: '#0974e5' }} onClick={handleRemoveFromWatchlist} />
-              <EyeIconSolid className="w-6 h-6 text-green-500 hover:text-green-700 cursor-pointer" onClick={handleWatched} />
+              <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={handleRemoveFromWatchlist} />
+              <Eye className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer" onClick={handleWatched} />
             </>
           )}
 
           {page === "watched" && (
             <>
-              <EyeSlashIconSolid className="w-6 h-6 text-yellow-400 hover:text-yellow-600 cursor-pointer" onClick={handleUnwatch} />
-              <BookOpenIcon className="w-6 h-6 text-blue-400 hover:text-blue-600 cursor-pointer" />
+              <EyeOff className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer" onClick={handleUnwatch} />
+              <BookOpen className="w-6 h-6 text-blue-400 hover:text-blue-600 cursor-pointer" />
             </>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

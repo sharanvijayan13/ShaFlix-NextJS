@@ -96,7 +96,7 @@ const MainAppInner = () => {
 };
 
 const MainApp = () => (
-  <Suspense fallback={<div className="flex flex-col p-4 md:p-6 bg-black text-white min-h-screen"><h1 className="text-2xl md:text-3xl font-bold mb-5">Shaflix: Mood-Based Movie Recommender</h1><p className="m-5 mt-1.5 text-xl md:text-2xl">Loading...</p></div>}>
+  <Suspense fallback={<div className="flex flex-col p-4 md:p-6 bg-black text-white min-h-screen"><h1 className="text-2xl md:text-3xl font-bold mb-5">Shaflix: Mood-Based Movie Recommender</h1><p className="m-5 mt-1.5 text-xl md:text-xs">Loading...</p></div>}>
     <MainAppInner />
   </Suspense>
 );

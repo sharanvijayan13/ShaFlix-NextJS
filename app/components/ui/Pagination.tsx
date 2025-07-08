@@ -1,4 +1,12 @@
-import React from "react";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationProps {
   page: number;
@@ -6,98 +14,91 @@ interface PaginationProps {
   setPage: (p: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages, setPage }) => {
-  // Compact version for mobile: Prev, 3 page numbers, Next
-  const getCompactPages = () => {
-    let pages = [];
-    if (totalPages <= 3) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else if (page === 1) {
-      pages = [1, 2, 3];
-    } else if (page === totalPages) {
-      pages = [totalPages - 2, totalPages - 1, totalPages];
-    } else {
-      pages = [page - 1, page, page + 1];
-    }
-    // Clamp pages to valid range
-    return pages.filter((p) => p >= 1 && p <= totalPages);
+export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
+  // Generate exactly 3 pages around current
+  const getMobilePages = (): number[] => {
+    if (totalPages <= 3) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (page === 1) return [1, 2, 3];
+    if (page === totalPages) return [totalPages - 2, totalPages - 1, totalPages];
+    return [page - 1, page, page + 1];
   };
 
-  // Full version for desktop: 10 buttons
-  const maxButtons = 10;
-  let start = Math.max(1, page - Math.floor(maxButtons / 2));
-  let end = start + maxButtons - 1;
-  if (end > totalPages) {
-    end = totalPages;
-    start = Math.max(1, end - maxButtons + 1);
-  }
-  const pages = [];
-  for (let i = start; i <= end; i++) pages.push(i);
+  const getDesktopPages = (): number[] => {
+    const maxButtons = 10;
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxButtons + 1);
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
 
   return (
     <>
-      {/* Compact version for mobile */}
-      <div className="flex justify-center items-center gap-2 mt-12 mb-10 sm:hidden">
-        <button
-          className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+      {/* Mobile View - 5 Buttons: Prev, 3 page nums, Next */}
+      <div className="sm:hidden flex justify-center gap-1 mt-8">
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setPage(Math.max(1, page - 1))}
           disabled={page === 1}
         >
-          &lt;
-        </button>
-        {getCompactPages().map((p) => (
-          <button
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        {getMobilePages().map((p) => (
+          <Button
             key={p}
-            className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${
-              p === page
-                ? "bg-white text-green-600 border-white"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
+            variant={p === page ? "default" : "outline"}
+            size="icon"
             onClick={() => setPage(p)}
           >
             {p}
-          </button>
+          </Button>
         ))}
-        <button
-          className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setPage(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
         >
-          &gt;
-        </button>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
-      {/* Full version for desktop */}
-      <div className="hidden sm:flex justify-center items-center gap-3 mt-12 mb-10">
-        <button
-          className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+
+      {/* Desktop View - 10 Buttons with First/Last */}
+      <div className="hidden sm:flex justify-center gap-1 mt-8">
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setPage(1)}
           disabled={page === 1}
         >
-          «
-        </button>
-        {pages.map((p) => (
-          <button
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+
+        {getDesktopPages().map((p) => (
+          <Button
             key={p}
-            className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${
-              p === page
-                ? "bg-white text-green-600 border-white"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
+            variant={p === page ? "default" : "outline"}
+            size="icon"
             onClick={() => setPage(p)}
           >
             {p}
-          </button>
+          </Button>
         ))}
-        <button
-          className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setPage(totalPages)}
           disabled={page === totalPages}
         >
-          »
-        </button>
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
       </div>
     </>
   );
-};
-
-export default Pagination; 
+}

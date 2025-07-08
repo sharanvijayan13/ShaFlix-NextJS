@@ -1,59 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Set mounted state to prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Close menu when clicking outside on mobile
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (isMenuOpen && !target.closest('.navbar-container') && !target.closest('.hamburger')) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isMenuOpen, isMounted]);
-
-  // Prevent body scroll when menu is open
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMenuOpen, isMounted]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
 
   const navLinks = [
     { href: "/", label: "Discover" },
@@ -77,73 +31,67 @@ export default function Navbar() {
         ))}
       </div>
 
-      {/* Mobile Hamburger Button */}
+      {/* Mobile Navigation via Sheet */}
       <div className="md:hidden mt-1">
-        <button
-          onClick={toggleMenu}
-          className="hamburger p-2 text-gray-300 hover:text-[#1db954] transition-colors duration-300"
-          aria-label="Toggle menu"
-        >
-          <div className="w-6 h-6 flex flex-col justify-center items-center">
-            <span
-              className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
-                isMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'
-              }`}
-            />
-            <span
-              className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
-                isMenuOpen ? 'opacity-0' : 'opacity-100'
-              }`}
-            />
-            <span
-              className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
-                isMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'
-              }`}
-            />
-          </div>
-        </button>
-      </div>
+        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hamburger text-gray-300 hover:text-[#1db954] hover:bg-transparent focus:bg-transparent active:bg-transparent transition-colors duration-300"
+            aria-label="Toggle menu"
+          >
 
-      {/* Mobile Menu Overlay */}
-      {isMounted && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 z-[9998] transition-opacity duration-300 md:hidden ${
-            isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onClick={closeMenu}
-        />
-      )}
+              <div className="w-6 h-6 flex flex-col justify-center items-center">
+                <span
+                  className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                    isMenuOpen ? "rotate-45 translate-y-1" : "-translate-y-1"
+                  }`}
+                />
+                <span
+                  className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                    isMenuOpen ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+                <span
+                  className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                    isMenuOpen ? "-rotate-45 -translate-y-1" : "translate-y-1"
+                  }`}
+                />
+              </div>
+            </Button>
+          </SheetTrigger>
 
-      {/* Mobile Sidebar */}
-      {isMounted && (
-        <div
-          className={`fixed top-0 left-0 h-full w-64 bg-black border-r border-gray-800 z-[9999] transform transition-transform duration-300 ease-in-out md:hidden ${
-            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
-          <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-800">
-              <h2 className="text-xl font-bold text-white">Shaflix</h2>
-              <button
-                onClick={closeMenu}
-                className="text-gray-300 hover:text-[#1db954] transition-colors duration-300"
-                aria-label="Close menu"
+          <SheetContent
+            side="left"
+            className="w-64 bg-black border-r border-gray-800 p-0"
+          >
+            {/* Title and Close */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+              <SheetTitle className="text-xl font-bold text-white">Shaflix</SheetTitle>
+              <Button
+                variant="ghost"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-[#1db954] hover:bg-transparent focus:bg-transparent active:bg-transparent transition-colors duration-300"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <X className="w-6 h-6" />
+              </Button>
+
             </div>
 
+            {/* Optional Description (Visually Hidden) */}
+            <SheetDescription className="sr-only">
+              Navigation drawer with links to Discover, Favorites, Watchlist, and Watched.
+            </SheetDescription>
+
             {/* Navigation Links */}
-            <nav className="flex-1 p-6">
+            <nav className="flex-1 px-6 py-4">
               <ul className="space-y-6">
                 {navLinks.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      onClick={closeMenu}
+                      onClick={() => setIsMenuOpen(false)}
                       className="block text-lg text-gray-300 hover:text-[#1db954] hover:border-l-4 border-[#1db954] pl-4 transition-all duration-300 py-2"
                     >
                       {link.label}
@@ -152,9 +100,9 @@ export default function Navbar() {
                 ))}
               </ul>
             </nav>
-          </div>
-        </div>
-      )}
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }

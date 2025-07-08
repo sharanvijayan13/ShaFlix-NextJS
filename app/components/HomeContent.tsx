@@ -145,7 +145,7 @@ export default function HomeContent({
       </h2>
 
       {loading ? (
-        <p className="m-5 mt-1.5 text-2xl">Loading movies......</p>
+        <p className="m-5 mt-1.5 text-xl">Loading movies...</p>
       ) : (
         <>
           <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">

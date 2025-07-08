@@ -15,7 +15,7 @@ export default function Home() {
       <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">
         Watchlist
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
+      <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
         {watchlist.length === 0 ? (
           <p className="text-center col-span-full mt-1.5">No movies in watchlist.</p>
         ) : (

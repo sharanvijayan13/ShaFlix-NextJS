@@ -19,6 +19,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Shaflix",
   description: "Mood-based Movie Recommender",
+  icons:{
+    icon: ['/360_F_95612558_2HHziBV6o5Ti8ZrjDHeapKPj3HbPKQoD.jpg'],
+    apple: ['/apple-touch-icon.png'],
+    shortcut:['/favicon.ico']
+  }
 };
 
 export default function RootLayout({

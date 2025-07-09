@@ -66,7 +66,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   };
 
   return (
-    <Card className="bg-card border shadow-md flex flex-col min-h-[530px] w-64 overflow-hidden">
+    <Card className="bg-card border shadow-md flex flex-col min-h-[530px] w-64 overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.03]">
       <Image
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
         alt={movie.title}

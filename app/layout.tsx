@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "Shaflix",
   description: "Mood-based Movie Recommender",
   icons:{
-    icon: ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png'],
+    icon: ['/360_F_95612558_2HHziBV6o5Ti8ZrjDHeapKPj3HbPKQoD.jpg'],
     apple: ['/apple-touch-icon.png'],
     shortcut:['/favicon.ico']
   }

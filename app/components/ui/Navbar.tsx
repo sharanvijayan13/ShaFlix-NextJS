@@ -42,7 +42,6 @@ export default function Navbar() {
             className="hamburger text-gray-300 hover:text-[#1db954] hover:bg-transparent focus:bg-transparent active:bg-transparent transition-colors duration-300"
             aria-label="Toggle menu"
           >
-
               <div className="w-6 h-6 flex flex-col justify-center items-center">
                 <span
                   className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
@@ -77,13 +76,7 @@ export default function Navbar() {
               >
                 <X className="w-6 h-6" />
               </Button>
-
             </div>
-
-            {/* Optional Description (Visually Hidden) */}
-            <SheetDescription className="sr-only">
-              Navigation drawer with links to Discover, Favorites, Watchlist, and Watched.
-            </SheetDescription>
 
             {/* Navigation Links */}
             <nav className="flex-1 px-6 py-4">

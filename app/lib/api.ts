@@ -14,7 +14,7 @@ export const fetchMovies = async (
 ): Promise<{ results: Movie[]; total_pages: number }> => {
   const params = new URLSearchParams({
     mood,
-    page: page.toString(),
+    page: page.toString(), 
   });
 
   if (query && query.trim() !== "") {

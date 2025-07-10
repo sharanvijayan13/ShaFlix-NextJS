@@ -17,6 +17,12 @@ import {
   BookOpen,
 } from "lucide-react";
 import { getMovieCredits } from "@/app/lib/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MovieCardProps {
   movie: Movie;
@@ -41,9 +47,10 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
   const titleWithYear = `${movie.title} (${year})`;
   const description = movie.overview || "No description available.";
-  const rating = typeof movie.vote_average === "number"
-    ? movie.vote_average.toFixed(1)
-    : "N/A";
+  const rating =
+    typeof movie.vote_average === "number"
+      ? movie.vote_average.toFixed(1)
+      : "N/A";
 
   const favorite = isFavorite(movie.id);
   const inWatchlist = isInWatchlist(movie.id);
@@ -119,118 +126,181 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
             <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
             <span className="text-sm font-medium">{rating}</span>
           </div>
+
           <div className="flex items-center gap-5 mt-auto">
-            {page === "discover" && (
-              <>
-                {favorite ? (
-                  <Heart
-                    className="w-6 h-6 text-red-500 cursor-pointer"
-                    fill="currentColor"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFromFavorites();
-                    }}
-                  />
-                ) : (
-                  <Heart
-                    className="w-6 h-6 hover:text-red-500 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToFavorites();
-                    }}
-                  />
-                )}
-                {inWatchlist ? (
-                  <Bookmark
-                    className="w-6 h-6 text-blue-500 cursor-pointer"
-                    fill="currentColor"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFromWatchlist();
-                    }}
-                  />
-                ) : (
-                  <Bookmark
-                    className="w-6 h-6 hover:text-blue-500 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToWatchlist();
-                    }}
-                  />
-                )}
-              </>
-            )}
+            <TooltipProvider>
+              {page === "discover" && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {favorite ? (
+                        <Heart
+                          className="w-6 h-6 text-red-500 cursor-pointer"
+                          fill="currentColor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFromFavorites();
+                          }}
+                        />
+                      ) : (
+                        <Heart
+                          className="w-6 h-6 hover:text-red-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToFavorites();
+                          }}
+                        />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{favorite ? "Remove from favorites" : "Add to favorites"}</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-            {page === "favs" && (
-              <>
-                <Heart
-                  className="w-6 h-6 text-red-500 cursor-pointer"
-                  fill="currentColor"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveFromFavorites();
-                  }}
-                />
-                {inWatchlist ? (
-                  <Bookmark
-                    className="w-6 h-6 text-blue-500 cursor-pointer"
-                    fill="currentColor"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFromWatchlist();
-                    }}
-                  />
-                ) : (
-                  <Bookmark
-                    className="w-6 h-6 hover:text-blue-500 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToWatchlist();
-                    }}
-                  />
-                )}
-              </>
-            )}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {inWatchlist ? (
+                        <Bookmark
+                          className="w-6 h-6 text-blue-500 cursor-pointer"
+                          fill="currentColor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFromWatchlist();
+                          }}
+                        />
+                      ) : (
+                        <Bookmark
+                          className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToWatchlist();
+                          }}
+                        />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{inWatchlist ? "Remove from watchlist" : "Add to watchlist"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
 
-            {page === "watchlist" && (
-              <>
-                <Bookmark
-                  className="w-6 h-6 text-blue-500 cursor-pointer"
-                  fill="currentColor"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveFromWatchlist();
-                  }}
-                />
-                <Eye
-                  className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleWatched();
-                  }}
-                />
-              </>
-            )}
+              {page === "favs" && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Heart
+                        className="w-6 h-6 text-red-500 cursor-pointer"
+                        fill="currentColor"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFromFavorites();
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Remove from favorites</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-            {page === "watched" && (
-              <>
-                <EyeOff
-                  className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleUnwatch();
-                  }}
-                />
-                <BookOpen
-                  className={`w-6 h-6 cursor-pointer ${
-                    hasDiaryEntry(movie.id)
-                      ? "text-blue-500 fill-blue-500"
-                      : "text-blue-400 hover:text-blue-600"
-                  }`}
-                  onClick={handleDiaryClick}
-                />
-              </>
-            )}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {inWatchlist ? (
+                        <Bookmark
+                          className="w-6 h-6 text-blue-500 cursor-pointer"
+                          fill="currentColor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFromWatchlist();
+                          }}
+                        />
+                      ) : (
+                        <Bookmark
+                          className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToWatchlist();
+                          }}
+                        />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{inWatchlist ? "Remove from watchlist" : "Add to watchlist"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+
+              {page === "watchlist" && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Bookmark
+                        className="w-6 h-6 text-blue-500 cursor-pointer"
+                        fill="currentColor"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFromWatchlist();
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Remove from watchlist</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Eye
+                        className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWatched();
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mark as watched</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+
+              {page === "watched" && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <EyeOff
+                        className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnwatch();
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Move to watchlist</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <BookOpen
+                        className={`w-6 h-6 cursor-pointer ${
+                          hasDiaryEntry(movie.id)
+                            ? "text-blue-500 fill-blue-500"
+                            : "text-blue-400 hover:text-blue-600"
+                        }`}
+                        onClick={handleDiaryClick}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open diary</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+            </TooltipProvider>
           </div>
         </CardContent>
       </Card>

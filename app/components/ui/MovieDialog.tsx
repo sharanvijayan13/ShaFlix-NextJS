@@ -33,7 +33,7 @@ export default function MovieDialog({ open, onClose, movie, credits }: MovieDial
             alt={movie.title}
             width={250}
             height={375}
-            className="h-auto mb-4 md:mb-0"
+            className="w-[250px] h-auto mb-4 md:mb-0"
           />
 
           <div className="space-y-2 text-xl w-full">

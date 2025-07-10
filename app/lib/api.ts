@@ -1,6 +1,6 @@
 import { Movie } from "../types";
 
-const TMDB_API_KEY =
+const API_KEY =
   typeof window === "undefined"
     ? process.env.TMDB_API_KEY
     : process.env.NEXT_PUBLIC_TMDB_API_KEY;
@@ -26,16 +26,15 @@ export const fetchMovies = async (
     process.env.NEXT_PHASE === "phase-export" ||
     process.env.NODE_ENV === "production";
 
-  // Server-side static export or build-time fetch
   if (isServer && isStaticExport) {
     let url = "";
 
     if (query && query.trim() !== "") {
-      url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+      url = `${TMDB_BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(
         query
       )}&page=${page}`;
     } else if (mood.toLowerCase() === "popular") {
-      url = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}`;
+      url = `${TMDB_BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`;
     } else {
       const moodGenreMap: Record<string, number> = {
         action: 28,
@@ -53,7 +52,7 @@ export const fetchMovies = async (
       const genreId = moodGenreMap[mood.toLowerCase()];
       if (!genreId) throw new Error("Invalid mood selected");
 
-      url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&page=${page}`;
+      url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&page=${page}`;
     }
 
     const res = await fetch(url);
@@ -78,7 +77,7 @@ export const fetchMovies = async (
 
 export async function getMovieCredits(movieId: number) {
   try {
-    const url = `${TMDB_BASE_URL}/movie/${movieId}/credits?language=en-US&api_key=${TMDB_API_KEY}`;
+    const url = `${TMDB_BASE_URL}/movie/${movieId}/credits?language=en-US&api_key=${API_KEY}`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch credits");

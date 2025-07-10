@@ -4,7 +4,7 @@ import { FC, useState } from "react";
 import { useMovieContext } from "@/app/contexts/MovieContext";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { Movie } from "@/app/types";
+import { Movie, Credits } from "@/app/types";
 import { toast } from "sonner";
 import MovieDialog from "@/app/components/ui/MovieDialog";
 import DiaryDialog from "@/app/components/ui/DiaryDialog";
@@ -14,7 +14,7 @@ import {
   Star,
   Eye,
   EyeOff,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
 import { getMovieCredits } from "@/app/lib/api";
 
@@ -41,13 +41,15 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
   const titleWithYear = `${movie.title} (${year})`;
   const description = movie.overview || "No description available.";
-  const rating = typeof movie.vote_average === "number" ? movie.vote_average.toFixed(1) : "N/A";
+  const rating = typeof movie.vote_average === "number"
+    ? movie.vote_average.toFixed(1)
+    : "N/A";
 
   const favorite = isFavorite(movie.id);
   const inWatchlist = isInWatchlist(movie.id);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [credits, setCredits] = useState<any>(null);
+  const [credits, setCredits] = useState<Credits | null>(null);
   const [diaryDialogOpen, setDiaryDialogOpen] = useState(false);
 
   const handleOpenDialog = async () => {
@@ -55,7 +57,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
       const data = await getMovieCredits(movie.id);
       setCredits(data);
       setDialogOpen(true);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch movie credits");
     }
   };
@@ -110,55 +112,121 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
           <h3 className="text-sm font-semibold text-center mb-2 leading-tight">
             {titleWithYear}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+            {description}
+          </p>
           <div className="flex items-center gap-2 mb-4">
             <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
             <span className="text-sm font-medium">{rating}</span>
           </div>
           <div className="flex items-center gap-5 mt-auto">
-
             {page === "discover" && (
               <>
                 {favorite ? (
-                  <Heart className="w-6 h-6 text-red-500 cursor-pointer" fill="currentColor" onClick={(e) => { e.stopPropagation(); handleRemoveFromFavorites(); }} />
+                  <Heart
+                    className="w-6 h-6 text-red-500 cursor-pointer"
+                    fill="currentColor"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFromFavorites();
+                    }}
+                  />
                 ) : (
-                  <Heart className="w-6 h-6 hover:text-red-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToFavorites(); }} />
+                  <Heart
+                    className="w-6 h-6 hover:text-red-500 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToFavorites();
+                    }}
+                  />
                 )}
                 {inWatchlist ? (
-                  <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={(e) => { e.stopPropagation(); handleRemoveFromWatchlist(); }} />
+                  <Bookmark
+                    className="w-6 h-6 text-blue-500 cursor-pointer"
+                    fill="currentColor"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFromWatchlist();
+                    }}
+                  />
                 ) : (
-                  <Bookmark className="w-6 h-6 hover:text-blue-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(); }} />
+                  <Bookmark
+                    className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToWatchlist();
+                    }}
+                  />
                 )}
               </>
             )}
 
             {page === "favs" && (
               <>
-                <Heart className="w-6 h-6 text-red-500 cursor-pointer" fill="currentColor" onClick={(e) => { e.stopPropagation(); handleRemoveFromFavorites(); }} />
+                <Heart
+                  className="w-6 h-6 text-red-500 cursor-pointer"
+                  fill="currentColor"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFromFavorites();
+                  }}
+                />
                 {inWatchlist ? (
-                  <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={(e) => { e.stopPropagation(); handleRemoveFromWatchlist(); }} />
+                  <Bookmark
+                    className="w-6 h-6 text-blue-500 cursor-pointer"
+                    fill="currentColor"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFromWatchlist();
+                    }}
+                  />
                 ) : (
-                  <Bookmark className="w-6 h-6 hover:text-blue-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(); }} />
+                  <Bookmark
+                    className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToWatchlist();
+                    }}
+                  />
                 )}
               </>
             )}
 
             {page === "watchlist" && (
               <>
-                <Bookmark className="w-6 h-6 text-blue-500 cursor-pointer" fill="currentColor" onClick={(e) => { e.stopPropagation(); handleRemoveFromWatchlist(); }} />
-                <Eye className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleWatched(); }} />
+                <Bookmark
+                  className="w-6 h-6 text-blue-500 cursor-pointer"
+                  fill="currentColor"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFromWatchlist();
+                  }}
+                />
+                <Eye
+                  className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWatched();
+                  }}
+                />
               </>
             )}
 
             {page === "watched" && (
               <>
-                <EyeOff className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleUnwatch(); }} />
-                <BookOpen 
+                <EyeOff
+                  className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUnwatch();
+                  }}
+                />
+                <BookOpen
                   className={`w-6 h-6 cursor-pointer ${
-                    hasDiaryEntry(movie.id) 
-                      ? "text-blue-500 fill-blue-500" 
+                    hasDiaryEntry(movie.id)
+                      ? "text-blue-500 fill-blue-500"
                       : "text-blue-400 hover:text-blue-600"
-                  }`} 
+                  }`}
                   onClick={handleDiaryClick}
                 />
               </>
@@ -167,7 +235,6 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
         </CardContent>
       </Card>
 
-      {/*Movie Dialog */}
       <MovieDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -175,7 +242,6 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
         credits={credits}
       />
 
-      {/*Diary Dialog */}
       <DiaryDialog
         open={diaryDialogOpen}
         onClose={() => setDiaryDialogOpen(false)}

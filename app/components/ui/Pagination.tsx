@@ -17,11 +17,11 @@ interface PaginationProps {
 export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
   const getDesktopPages = (): number[] => {
     const maxButtons = 5;
-    let start = Math.max(
+    const start = Math.max(
       1,
       Math.min(page - Math.floor(maxButtons / 2), totalPages - maxButtons + 1)
     );
-    let end = Math.min(totalPages, start + maxButtons - 1);
+    const end = Math.min(totalPages, start + maxButtons - 1);
 
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
@@ -38,7 +38,6 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-
         <Button
           variant="outline"
           size="icon"
@@ -59,7 +58,6 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
-
         {getDesktopPages().map((p) => (
           <Button
             key={p}
@@ -70,7 +68,6 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
             {p}
           </Button>
         ))}
-
         <Button
           variant="outline"
           size="icon"

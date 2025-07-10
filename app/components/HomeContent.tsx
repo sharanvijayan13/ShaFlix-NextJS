@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Navbar from "../components/ui/Navbar";
-import SearchBar from "../components/ui/SearchBar";
-import MoodSelector from "../components/ui/MoodSelector";
-import MovieCard from "../components/ui/MovieCard";
+import Navbar from "./ui/Navbar";
+import SearchBar from "./ui/SearchBar";
+import MoodSelector from "./ui/MoodSelector";
+import MovieCard from "./ui/MovieCard";
 import { fetchMovies } from "../lib/api";
 import { Movie } from "../types";
 import { useSearchParams, useRouter } from "next/navigation";

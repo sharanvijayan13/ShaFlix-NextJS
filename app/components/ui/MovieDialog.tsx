@@ -22,7 +22,7 @@ export default function MovieDialog({ open, onClose, movie, credits }: MovieDial
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[80vh] overflow-y-auto p-4">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-[500px] lg:max-w-2xl xl:max-w-3xl max-h-[85vh] overflow-y-auto p-4">
         <DialogDescription className="sr-only">
           Movie details including title, release year, rating, and overview.
         </DialogDescription>
@@ -33,10 +33,10 @@ export default function MovieDialog({ open, onClose, movie, credits }: MovieDial
             alt={movie.title}
             width={250}
             height={375}
-            className="w-[250px] h-auto rounded mb-4 md:mb-0"
+            className="h-auto mb-4 md:mb-0"
           />
 
-          <div className="space-y-2 text-lg w-full">
+          <div className="space-y-2 text-xl w-full">
             <DialogTitle className="text-2xl font-bold underline text-center md:text-left">
               {movie.title}
             </DialogTitle>

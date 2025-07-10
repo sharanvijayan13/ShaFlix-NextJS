@@ -3,7 +3,6 @@ import HomeContent from "./components/HomeContent";
 import { fetchMovies } from "./lib/api";
 
 export default async function Home() {
-  // Default values; you can later extend to use searchParams if needed
   const initialMood = "popular";
   const initialPage = 1;
   const initialSearch = "";

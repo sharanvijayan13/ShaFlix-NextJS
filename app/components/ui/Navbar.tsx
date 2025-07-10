@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +32,7 @@ export default function Navbar() {
         ))}
       </div>
 
-      {/* Mobile Navigation via Sheet */}
+      {/* Mobile Navigation */}
       <div className="md:hidden mt-1">
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
@@ -41,7 +42,6 @@ export default function Navbar() {
             className="hamburger text-gray-300 hover:text-[#1db954] hover:bg-transparent focus:bg-transparent active:bg-transparent transition-colors duration-300"
             aria-label="Toggle menu"
           >
-
               <div className="w-6 h-6 flex flex-col justify-center items-center">
                 <span
                   className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
@@ -76,13 +76,7 @@ export default function Navbar() {
               >
                 <X className="w-6 h-6" />
               </Button>
-
             </div>
-
-            {/* Optional Description (Visually Hidden) */}
-            <SheetDescription className="sr-only">
-              Navigation drawer with links to Discover, Favorites, Watchlist, and Watched.
-            </SheetDescription>
 
             {/* Navigation Links */}
             <nav className="flex-1 px-6 py-4">

@@ -3,6 +3,11 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { Movie } from "../types";
 
+export type DiaryEntry = {
+  text: string;
+  date: string;
+};
+
 interface MovieContextType {
   favorites: Movie[];
   addToFavorites: (movie: Movie) => void;
@@ -18,6 +23,11 @@ interface MovieContextType {
   addToWatched: (movie: Movie) => void;
   removeFromWatched: (movieId: number) => void;
   isWatched: (movieId: number) => boolean;
+
+  diaryEntries: Record<number, DiaryEntry>;
+  saveDiaryEntry: (movieId: number, entry: string) => void;
+  getDiaryEntry: (movieId: number) => DiaryEntry | undefined;
+  hasDiaryEntry: (movieId: number) => boolean;
 }
 
 const MovieContext = createContext<MovieContextType | undefined>(undefined);
@@ -38,6 +48,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
   const [watched, setWatched] = useState<Movie[]>([]);
+  const [diaryEntries, setDiaryEntries] = useState<Record<number, DiaryEntry>>({});
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,10 +56,12 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
     const storedFavs = localStorage.getItem("favorites");
     const storedWatchlist = localStorage.getItem("watchlist");
     const storedWatched = localStorage.getItem("watched");
+    const storedDiary = localStorage.getItem("diaryEntries");
 
     if (storedFavs) setFavorites(JSON.parse(storedFavs));
     if (storedWatchlist) setWatchlist(JSON.parse(storedWatchlist));
     if (storedWatched) setWatched(JSON.parse(storedWatched));
+    if (storedDiary) setDiaryEntries(JSON.parse(storedDiary));
   }, []);
 
   useEffect(() => {
@@ -68,6 +81,12 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
       localStorage.setItem("watched", JSON.stringify(watched));
     }
   }, [watched]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
+    }
+  }, [diaryEntries]);
 
   const addToFavorites = (movie: Movie) => {
     setFavorites((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
@@ -99,6 +118,24 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const isWatched = (movieId: number) => watched.some((movie) => movie.id === movieId);
 
+  const saveDiaryEntry = (movieId: number, entry: string) => {
+    setDiaryEntries((prev) => ({
+      ...prev,
+      [movieId]: {
+        text: entry,
+        date: new Date().toISOString(),
+      },
+    }));
+  };
+
+  const getDiaryEntry = (movieId: number): DiaryEntry | undefined => {
+    return diaryEntries[movieId];
+  };
+
+  const hasDiaryEntry = (movieId: number) => {
+    return !!diaryEntries[movieId]?.text;
+  };
+
   const value: MovieContextType = {
     favorites,
     addToFavorites,
@@ -112,6 +149,10 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
     addToWatched,
     removeFromWatched,
     isWatched,
+    diaryEntries,
+    saveDiaryEntry,
+    getDiaryEntry,
+    hasDiaryEntry,
   };
 
   return <MovieContext.Provider value={value}>{children}</MovieContext.Provider>;

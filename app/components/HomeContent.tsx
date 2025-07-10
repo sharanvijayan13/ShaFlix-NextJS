@@ -18,7 +18,7 @@ function Pagination({
   totalPages: number;
   setPage: (p: number) => void;
 }) {
-  const maxButtons = 10;
+  const maxButtons = 5;
   let start = Math.max(1, page - Math.floor(maxButtons / 2));
   let end = start + maxButtons - 1;
   if (end > totalPages) {
@@ -32,10 +32,10 @@ function Pagination({
     <div className="flex justify-center items-center gap-3 mt-12 mb-10">
       <button
         className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
-        onClick={() => setPage(1)}
+        onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
       >
-        «
+        ‹
       </button>
       {pages.map((p) => (
         <button
@@ -52,10 +52,10 @@ function Pagination({
       ))}
       <button
         className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
-        onClick={() => setPage(totalPages)}
+        onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
       >
-        »
+        ›
       </button>
     </div>
   );

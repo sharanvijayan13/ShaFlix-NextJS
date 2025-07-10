@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Movie } from "@/app/types";
 import { toast } from "sonner";
 import MovieDialog from "@/app/components/ui/MovieDialog";
+import DiaryDialog from "@/app/components/ui/DiaryDialog";
 import {
   Heart,
   Bookmark,
@@ -32,6 +33,9 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
     isInWatchlist,
     addToWatched,
     removeFromWatched,
+    saveDiaryEntry,
+    getDiaryEntry,
+    hasDiaryEntry,
   } = useMovieContext();
 
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
@@ -44,6 +48,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [credits, setCredits] = useState<any>(null);
+  const [diaryDialogOpen, setDiaryDialogOpen] = useState(false);
 
   const handleOpenDialog = async () => {
     try {
@@ -80,6 +85,11 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
     addToWatched(movie);
     removeFromWatchlist(movie.id);
     toast.success("Marked as watched!", { icon: "✅" });
+  };
+
+  const handleDiaryClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDiaryDialogOpen(true);
   };
 
   return (
@@ -143,19 +153,35 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
             {page === "watched" && (
               <>
                 <EyeOff className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleUnwatch(); }} />
-                <BookOpen className="w-6 h-6 text-blue-400 hover:text-blue-600 cursor-pointer" />
+                <BookOpen 
+                  className={`w-6 h-6 cursor-pointer ${
+                    hasDiaryEntry(movie.id) 
+                      ? "text-blue-500 fill-blue-500" 
+                      : "text-blue-400 hover:text-blue-600"
+                  }`} 
+                  onClick={handleDiaryClick}
+                />
               </>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* ✅ Movie Dialog */}
+      {/*Movie Dialog */}
       <MovieDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         movie={movie}
         credits={credits}
+      />
+
+      {/*Diary Dialog */}
+      <DiaryDialog
+        open={diaryDialogOpen}
+        onClose={() => setDiaryDialogOpen(false)}
+        movie={movie}
+        initialDiaryEntry={getDiaryEntry(movie.id)}
+        onSave={saveDiaryEntry}
       />
     </>
   );

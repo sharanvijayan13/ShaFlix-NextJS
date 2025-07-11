@@ -8,18 +8,20 @@ interface MoodSelectorProps {
 }
 
 export default function MoodSelector({ mood, setMood }: MoodSelectorProps) {
-  const moods = [
-    "popular",
-    "action",
-    "comedy",
-    "horror",
-    "romantic",
-    "scifi",
-    "animation",
-    "drama",
-    "crime",
-    "mystery",
-    "thriller",
+  const moodOptions = [
+    { value: "popular", label: "Popular" },
+    { value: "excited", label: "Excited" },
+    { value: "happy", label: "Happy" },
+    { value: "sad", label: "Sad" },
+    { value: "scared", label: "Scared" },
+    { value: "disturbing", label: "Disturbing" },
+    { value: "romantic", label: "Romantic" },
+    { value: "curious", label: "Curious" },
+    { value: "nostalgic", label: "Nostalgic" },
+    { value: "thoughtful", label: "Thoughtful" },
+    { value: "adventurous", label: "Adventurous" },
+    { value: "mysterious", label: "Mysterious" },
+    { value: "thrilled", label: "Thrilled" },
   ];
 
   return (
@@ -29,9 +31,9 @@ export default function MoodSelector({ mood, setMood }: MoodSelectorProps) {
           <SelectValue placeholder="Select mood" />
         </SelectTrigger>
         <SelectContent>
-          {moods.map((moodOption) => (
-            <SelectItem key={moodOption} value={moodOption}>
-              {moodOption.charAt(0).toUpperCase() + moodOption.slice(1)}
+          {moodOptions.map((moodOption) => (
+            <SelectItem key={moodOption.value} value={moodOption.value}>
+              {moodOption.label}
             </SelectItem>
           ))}
         </SelectContent>

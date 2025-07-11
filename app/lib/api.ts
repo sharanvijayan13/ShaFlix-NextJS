@@ -35,24 +35,30 @@ export const fetchMovies = async (
       )}&page=${page}`;
     } else if (mood.toLowerCase() === "popular") {
       url = `${TMDB_BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`;
+    } else if (mood.toLowerCase() === "sad") {
+      // For sad movies: drama genre with emotional themes, lower vote count threshold for indie films
+      url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=18&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
+    } else if (mood.toLowerCase() === "disturbing") {
+      // For disturbing movies: horror/thriller with psychological elements, lower vote count for arthouse films
+      url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=27,53&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
     } else {
       const moodGenreMap: Record<string, number> = {
-        action: 28,
-        comedy: 35,
-        horror: 27,
-        romantic: 10749,
-        scifi: 878,
-        animation: 16,
-        drama: 18,
-        crime: 80,
-        mystery: 9648,
-        thriller: 53,
+        excited: 28,      // Action
+        happy: 35,        // Comedy
+        scared: 27,       // Horror
+        romantic: 10749,  // Romance
+        curious: 878,     // Science Fiction
+        nostalgic: 16,    // Animation
+        thoughtful: 18,   // Drama
+        adventurous: 12,  // Adventure
+        mysterious: 9648, // Mystery
+        thrilled: 53,     // Thriller
       };
 
       const genreId = moodGenreMap[mood.toLowerCase()];
       if (!genreId) throw new Error("Invalid mood selected");
 
-      url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&page=${page}`;
+      url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=100&page=${page}`;
     }
 
     const res = await fetch(url);

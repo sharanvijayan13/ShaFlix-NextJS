@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const moodGenreMap: Record<string, number> = {
-  excited: 28,      // Action
-  happy: 35,        // Comedy
-  scared: 27,       // Horror
-  romantic: 10749,  // Romance
-  curious: 878,     // Science Fiction
-  nostalgic: 16,    // Animation
-  thoughtful: 18,   // Drama
-  adventurous: 12,  // Adventure
-  mysterious: 9648, // Mystery
-  thrilled: 53,     // Thriller
+  excited: 28,      
+  happy: 35,        
+  scared: 27,       
+  romantic: 10749,  
+  curious: 878,     
+  nostalgic: 16,    
+  thoughtful: 18,   
+  adventurous: 12,  
+  mysterious: 9648, 
+  thrilled: 53,     
 };
 
 export async function GET(req: NextRequest) {
@@ -41,9 +41,21 @@ export async function GET(req: NextRequest) {
     url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=100&page=${page}`;
   }
 
-  const res = await fetch(url);
-  if (!res.ok) return NextResponse.json({ error: "Failed to fetch movies" }, { status: 500 });
-
-  const data = await res.json();
-  return NextResponse.json(data);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: "Failed to fetch movies", details: errorData },
+        { status: 500 }
+      );
+    }
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Network error while fetching movies", details: String(err) },
+      { status: 500 }
+    );
+  }
 }

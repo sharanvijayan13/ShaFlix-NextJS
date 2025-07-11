@@ -5,6 +5,10 @@ const API_KEY =
     ? process.env.TMDB_API_KEY
     : process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
+if (!API_KEY) {
+  throw new Error("TMDB API key is missing. Please set TMDB_API_KEY and NEXT_PUBLIC_TMDB_API_KEY in your environment.");
+}
+
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 export const fetchMovies = async (
@@ -36,23 +40,23 @@ export const fetchMovies = async (
     } else if (mood.toLowerCase() === "popular") {
       url = `${TMDB_BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`;
     } else if (mood.toLowerCase() === "sad") {
-      // For sad movies: drama genre with emotional themes, lower vote count threshold for indie films
       url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=18&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
     } else if (mood.toLowerCase() === "disturbing") {
-      // For disturbing movies: horror/thriller with psychological elements, lower vote count for arthouse films
       url = `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=27,53&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
     } else {
       const moodGenreMap: Record<string, number> = {
-        excited: 28,      // Action
-        happy: 35,        // Comedy
-        scared: 27,       // Horror
-        romantic: 10749,  // Romance
-        curious: 878,     // Science Fiction
-        nostalgic: 16,    // Animation
-        thoughtful: 18,   // Drama
-        adventurous: 12,  // Adventure
-        mysterious: 9648, // Mystery
-        thrilled: 53,     // Thriller
+        excited: 28,      
+        happy: 35, 
+        sad: 18,
+        disturbing: 9648,       
+        scared: 27,               
+        romantic: 10749,  
+        curious: 878,     
+        nostalgic: 16,    
+        thoughtful: 18,   
+        adventurous: 12,  
+        mysterious: 9648, 
+        thrilled: 53,     
       };
 
       const genreId = moodGenreMap[mood.toLowerCase()];

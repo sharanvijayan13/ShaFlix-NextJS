@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { X } from "lucide-react";
+import AuthButtons from "../AuthButtons";
 
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +31,9 @@ export default function Navbar() {
             {link.label}
           </Link>
         ))}
+         <div className="fixed top-5 right-6 z-50 hidden md:block">
+          <AuthButtons />
+        </div>
       </div>
 
       {/* Mobile Navigation */}
@@ -74,7 +78,7 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
                 className="text-gray-300 hover:text-[#1db954] hover:bg-transparent focus:bg-transparent active:bg-transparent transition-colors duration-300"
               >
-                <X className="w-6 h-6" />
+                <X className="w-7 h-7" />
               </Button>
             </div>
 
@@ -94,6 +98,9 @@ export default function Navbar() {
                 ))}
               </ul>
             </nav>
+            <div className="px-13 pt-5 border-t border-gray-800">
+              <AuthButtons />
+            </div>
           </SheetContent>
         </Sheet>
       </div>

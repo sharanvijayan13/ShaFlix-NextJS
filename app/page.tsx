@@ -9,7 +9,7 @@ export default async function Home() {
   const { results, total_pages } = await fetchMovies(initialMood, initialPage, initialSearch);
 
   return (
-    <Suspense fallback={<div className="text-white p-6">Loading...</div>}>
+    <Suspense fallback={<div className="text-white p-6">Loading....</div>}>
       <HomeContent
         initialMovies={results}
         initialTotalPages={total_pages}

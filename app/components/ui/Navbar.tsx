@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { X } from "lucide-react";
-
+import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
@@ -20,7 +20,7 @@ export default function Navbar() {
   return (
     <div className="navbar-container relative z-10">
       {/* Desktop Navigation */}
-      <div className="hidden md:flex text-lg flex-row text-gray-300 justify-end gap-10 mt-7">
+      <div className="hidden md:flex text-lg flex-row text-gray-300 justify-end items-center gap-10 mt-7">
         {navLinks.map((link) => (
           <Link
             key={link.href}
@@ -30,10 +30,11 @@ export default function Navbar() {
             {link.label}
           </Link>
         ))}
+        <ThemeToggle />
       </div>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden mt-1">
+      <div className="md:hidden mt-1 flex items-center justify-between">
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
           <Button
@@ -96,6 +97,7 @@ export default function Navbar() {
             </nav>
           </SheetContent>
         </Sheet>
+        <ThemeToggle />
       </div>
     </div>
   );

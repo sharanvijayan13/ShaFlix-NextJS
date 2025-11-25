@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import { createContext, useState, useContext, useEffect, ReactNode, useMemo, useCallback } from "react";
 import { Movie } from "../types";
 
 export type DiaryEntry = {
@@ -88,37 +88,42 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
     }
   }, [diaryEntries]);
 
-  const addToFavorites = (movie: Movie) => {
+  // Memoize ID sets for faster lookups
+  const favoriteIds = useMemo(() => new Set(favorites.map(m => m.id)), [favorites]);
+  const watchlistIds = useMemo(() => new Set(watchlist.map(m => m.id)), [watchlist]);
+  const watchedIds = useMemo(() => new Set(watched.map(m => m.id)), [watched]);
+
+  const addToFavorites = useCallback((movie: Movie) => {
     setFavorites((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
-  };
+  }, []);
 
-  const removeFromFavorites = (movieId: number) => {
+  const removeFromFavorites = useCallback((movieId: number) => {
     setFavorites((prev) => prev.filter((movie) => movie.id !== movieId));
-  };
+  }, []);
 
-  const isFavorite = (movieId: number) => favorites.some((movie) => movie.id === movieId);
+  const isFavorite = useCallback((movieId: number) => favoriteIds.has(movieId), [favoriteIds]);
 
-  const addToWatchlist = (movie: Movie) => {
+  const addToWatchlist = useCallback((movie: Movie) => {
     setWatchlist((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
-  };
+  }, []);
 
-  const removeFromWatchlist = (movieId: number) => {
+  const removeFromWatchlist = useCallback((movieId: number) => {
     setWatchlist((prev) => prev.filter((movie) => movie.id !== movieId));
-  };
+  }, []);
 
-  const isInWatchlist = (movieId: number) => watchlist.some((movie) => movie.id === movieId);
+  const isInWatchlist = useCallback((movieId: number) => watchlistIds.has(movieId), [watchlistIds]);
 
-  const addToWatched = (movie: Movie) => {
+  const addToWatched = useCallback((movie: Movie) => {
     setWatched((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
-  };
+  }, []);
 
-  const removeFromWatched = (movieId: number) => {
+  const removeFromWatched = useCallback((movieId: number) => {
     setWatched((prev) => prev.filter((movie) => movie.id !== movieId));
-  };
+  }, []);
 
-  const isWatched = (movieId: number) => watched.some((movie) => movie.id === movieId);
+  const isWatched = useCallback((movieId: number) => watchedIds.has(movieId), [watchedIds]);
 
-  const saveDiaryEntry = (movieId: number, entry: string) => {
+  const saveDiaryEntry = useCallback((movieId: number, entry: string) => {
     setDiaryEntries((prev) => ({
       ...prev,
       [movieId]: {
@@ -126,17 +131,17 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         date: new Date().toISOString(),
       },
     }));
-  };
+  }, []);
 
-  const getDiaryEntry = (movieId: number): DiaryEntry | undefined => {
+  const getDiaryEntry = useCallback((movieId: number): DiaryEntry | undefined => {
     return diaryEntries[movieId];
-  };
+  }, [diaryEntries]);
 
-  const hasDiaryEntry = (movieId: number) => {
+  const hasDiaryEntry = useCallback((movieId: number) => {
     return !!diaryEntries[movieId]?.text;
-  };
+  }, [diaryEntries]);
 
-  const value: MovieContextType = {
+  const value: MovieContextType = useMemo(() => ({
     favorites,
     addToFavorites,
     removeFromFavorites,
@@ -153,7 +158,24 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
     saveDiaryEntry,
     getDiaryEntry,
     hasDiaryEntry,
-  };
+  }), [
+    favorites,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite,
+    watchlist,
+    addToWatchlist,
+    removeFromWatchlist,
+    isInWatchlist,
+    watched,
+    addToWatched,
+    removeFromWatched,
+    isWatched,
+    diaryEntries,
+    saveDiaryEntry,
+    getDiaryEntry,
+    hasDiaryEntry,
+  ]);
 
   return <MovieContext.Provider value={value}>{children}</MovieContext.Provider>;
 };

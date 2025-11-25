@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
 import SearchBar from "./ui/SearchBar";
 import MoodSelector from "./ui/MoodSelector";
+import SortFilter from "./ui/SortFilter";
 import MovieCard from "./ui/MovieCard";
+import MovieCardSkeleton from "./ui/MovieCardSkeleton";
+import ErrorState from "./ui/ErrorState";
 import { fetchMovies } from "../lib/api";
 import { Movie } from "../types";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -83,6 +86,8 @@ export default function HomeContent({
   const [page, setPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [search, setSearch] = useState(initialSearch);
+  const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
     const moodParam = searchParams.get("mood") || "popular";
@@ -97,16 +102,42 @@ export default function HomeContent({
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
+      setError(null);
       try {
         const { results, total_pages } = await fetchMovies(
           mood.toLowerCase(),
           page,
           search
         );
-        setMovies(results);
+        
+        // Apply sorting
+        let sortedResults = [...results];
+        if (sortBy !== "default") {
+          sortedResults.sort((a, b) => {
+            switch (sortBy) {
+              case "rating-desc":
+                return (b.vote_average || 0) - (a.vote_average || 0);
+              case "rating-asc":
+                return (a.vote_average || 0) - (b.vote_average || 0);
+              case "title-asc":
+                return a.title.localeCompare(b.title);
+              case "title-desc":
+                return b.title.localeCompare(a.title);
+              case "date-desc":
+                return (b.release_date || "").localeCompare(a.release_date || "");
+              case "date-asc":
+                return (a.release_date || "").localeCompare(b.release_date || "");
+              default:
+                return 0;
+            }
+          });
+        }
+        
+        setMovies(sortedResults);
         setTotalPages(total_pages);
       } catch (err) {
         console.error(err);
+        setError(err instanceof Error ? err.message : "Failed to fetch movies");
       } finally {
         setLoading(false);
       }
@@ -119,7 +150,7 @@ export default function HomeContent({
     if (page > 1) params.set("page", page.toString());
 
     router.replace(`/?${params.toString()}`);
-  }, [mood, page, search, router]);
+  }, [mood, page, search, sortBy, router]);
 
   useEffect(() => {
     setPage(1);
@@ -138,19 +169,49 @@ export default function HomeContent({
 
       <Navbar />
       <SearchBar value={search} onChange={setSearch} />
-      <MoodSelector mood={mood} setMood={setMood} />
+      <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
+        <MoodSelector mood={mood} setMood={setMood} />
+        <SortFilter sortBy={sortBy} setSortBy={setSortBy} />
+      </div>
 
       <h2 className="text-sm md:text-2xl font-bold mt-5 m-4 text-center md:text-left">
         {heading}
       </h2>
 
       {loading ? (
-        <p className="m-5 mt-1.5 text-xl">Loading movies...</p>
+        <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <MovieCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
+          <ErrorState
+            message={error}
+            onRetry={() => {
+              setError(null);
+              setLoading(true);
+              fetchMovies(mood.toLowerCase(), page, search)
+                .then(({ results, total_pages }) => {
+                  setMovies(results);
+                  setTotalPages(total_pages);
+                })
+                .catch((err) => setError(err instanceof Error ? err.message : "Failed to fetch movies"))
+                .finally(() => setLoading(false));
+            }}
+          />
+        </div>
       ) : (
         <>
-          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} page="discover" />
+          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
+            {movies.map((movie, index) => (
+              <div
+                key={movie.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${Math.min(index * 30, 600)}ms` }}
+              >
+                <MovieCard movie={movie} page="discover" />
+              </div>
             ))}
           </div>
 

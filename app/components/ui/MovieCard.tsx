@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import React, { FC, useState } from "react";
 import { useMovieContext } from "@/app/contexts/MovieContext";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -16,7 +16,8 @@ import {
   EyeOff,
   BookOpen,
 } from "lucide-react";
-import { getMovieCredits } from "@/app/lib/api";
+import StarRating from "./StarRating";
+import { getMovieCredits, getMovieVideos } from "@/app/lib/api";
 import {
   Tooltip,
   TooltipContent,
@@ -29,7 +30,7 @@ interface MovieCardProps {
   page: "discover" | "favs" | "watchlist" | "watched";
 }
 
-const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
+const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
   const {
     addToFavorites,
     removeFromFavorites,
@@ -57,15 +58,22 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [credits, setCredits] = useState<Credits | null>(null);
+  const [trailer, setTrailer] = useState<any>(null);
   const [diaryDialogOpen, setDiaryDialogOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(movie.poster_path ? true : false);
+  const [imageError, setImageError] = useState(!movie.poster_path);
 
   const handleOpenDialog = async () => {
     try {
-      const data = await getMovieCredits(movie.id);
-      setCredits(data);
+      const [creditsData, videoData] = await Promise.all([
+        getMovieCredits(movie.id),
+        getMovieVideos(movie.id),
+      ]);
+      setCredits(creditsData);
+      setTrailer(videoData);
       setDialogOpen(true);
     } catch {
-      toast.error("Failed to fetch movie credits");
+      toast.error("Failed to fetch movie details");
     }
   };
 
@@ -104,30 +112,88 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
   return (
     <>
       <Card
-        className="bg-card border shadow-md flex flex-col min-h-[540px] w-64 overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.03] cursor-pointer"
+        className="bg-card border shadow-md flex flex-col w-full max-w-[256px] overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-[#1db954]/20 hover:scale-[1.03] cursor-pointer group focus-within:ring-2 focus-within:ring-[#1db954]"
         onClick={handleOpenDialog}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleOpenDialog();
+          }
+        }}
+        aria-label={`View details for ${movie.title}`}
       >
-        <Image
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-          alt={movie.title}
-          width={500}
-          height={750}
-          className="w-full h-96 object-cover"
-          priority
-        />
-        <CardContent className="p-4 flex flex-col flex-1">
-          <h3 className="text-sm font-semibold text-center mb-2 leading-tight">
+        <div className="relative w-full aspect-[2/3] bg-gray-800">
+          {/* Hover Overlay */}
+          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+            <div className="text-white text-center px-4">
+              <p className="text-sm font-semibold mb-2">Click for details</p>
+              <div className="flex gap-3 justify-center">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <Star className="w-4 h-4" />
+                </div>
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold">{rating}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 border-4 border-gray-700 border-t-[#1db954] rounded-full animate-spin" />
+            </div>
+          )}
+          {imageError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+              <svg
+                className="w-16 h-16 mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span className="text-sm">No Image</span>
+            </div>
+          ) : (
+            <Image
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+              width={500}
+              height={750}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                imageLoading ? "opacity-0" : "opacity-100"
+              }`}
+              onLoad={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImageError(true);
+              }}
+              loading="lazy"
+            />
+          )}
+        </div>
+        <CardContent className="p-4 flex flex-col flex-1 min-h-0">
+          <h3 className="text-sm font-semibold text-center mb-2 leading-tight line-clamp-2 min-h-[2.5rem]">
             {titleWithYear}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+          <p className="text-sm text-muted-foreground line-clamp-3 mb-3 min-h-[3.75rem]">
             {description}
           </p>
-          <div className="flex items-center gap-2 mb-4">
-            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-            <span className="text-sm font-medium">{rating}</span>
+          <div className="mb-4 min-h-[1.5rem]">
+            <StarRating
+              rating={typeof movie.vote_average === "number" ? movie.vote_average : 0}
+              size="sm"
+            />
           </div>
 
-          <div className="flex items-center gap-5 mt-auto">
+          <div className="flex items-center gap-5 mt-auto min-h-[2rem]">
             <TooltipProvider>
               {page === "discover" && (
                 <>
@@ -294,8 +360,17 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
                         onClick={handleDiaryClick}
                       />
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Open diary</p>
+                    <TooltipContent className="max-w-xs">
+                      {hasDiaryEntry(movie.id) ? (
+                        <div>
+                          <p className="font-semibold mb-1">Diary Entry:</p>
+                          <p className="text-xs line-clamp-3">
+                            {getDiaryEntry(movie.id)?.text}
+                          </p>
+                        </div>
+                      ) : (
+                        <p>Add diary entry</p>
+                      )}
                     </TooltipContent>
                   </Tooltip>
                 </>
@@ -310,6 +385,7 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
         onClose={() => setDialogOpen(false)}
         movie={movie}
         credits={credits}
+        trailer={trailer}
       />
 
       <DiaryDialog
@@ -321,6 +397,8 @@ const MovieCard: FC<MovieCardProps> = ({ movie, page }) => {
       />
     </>
   );
-};
+});
+
+MovieCard.displayName = "MovieCard";
 
 export default MovieCard;

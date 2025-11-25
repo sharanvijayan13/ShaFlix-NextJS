@@ -94,3 +94,22 @@ export async function getMovieCredits(movieId: number) {
     return {};
   }
 }
+
+export async function getMovieVideos(movieId: number) {
+  try {
+    const url = `${TMDB_BASE_URL}/movie/${movieId}/videos?language=en-US&api_key=${API_KEY}`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch videos");
+
+    const data = await res.json();
+    // Find the first YouTube trailer
+    const trailer = data.results?.find(
+      (video: any) => video.type === "Trailer" && video.site === "YouTube"
+    );
+    return trailer;
+  } catch (err) {
+    console.error("Failed to fetch videos", err);
+    return null;
+  }
+}

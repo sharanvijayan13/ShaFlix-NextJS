@@ -29,7 +29,7 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
   return (
     <>
       {/* Mobile View */}
-      <div className="sm:hidden flex justify-center gap-1 mt-8">
+      <div className="sm:hidden flex justify-center items-center gap-2 mt-8">
         <Button
           variant="outline"
           size="icon"
@@ -38,6 +38,11 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
+        <div className="px-4 py-2 bg-card border rounded-md">
+          <span className="text-sm font-medium">
+            {page} / {totalPages}
+          </span>
+        </div>
         <Button
           variant="outline"
           size="icon"

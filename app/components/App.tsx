@@ -3,7 +3,11 @@ import React, { useEffect, useState, Suspense } from "react";
 import Navbar from "./ui/Navbar";
 import SearchBar from "./ui/SearchBar";
 import MoodSelector from "./ui/MoodSelector";
+import SortFilter from "./ui/SortFilter";
+import ViewToggle from "./ui/ViewToggle";
 import MovieCard from "./ui/MovieCard";
+import MovieCardSkeleton from "./ui/MovieCardSkeleton";
+import ErrorState from "./ui/ErrorState";
 import Pagination from "./ui/Pagination";
 import { fetchMovies } from "../lib/api";
 import { Movie } from "../types";
@@ -19,6 +23,9 @@ const MainAppInner = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("default");
+  const [viewMode, setViewMode] = useState<"grid" | "compact">("grid");
 
   // Sync state with URL params on mount
   useEffect(() => {
@@ -35,16 +42,42 @@ const MainAppInner = () => {
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
+      setError(null);
       try {
         const { results, total_pages } = await fetchMovies(
           mood.toLowerCase(),
           page,
           search
         );
-        setMovies(results);
+        
+        // Apply sorting
+        let sortedResults = [...results];
+        if (sortBy !== "default") {
+          sortedResults.sort((a, b) => {
+            switch (sortBy) {
+              case "rating-desc":
+                return (b.vote_average || 0) - (a.vote_average || 0);
+              case "rating-asc":
+                return (a.vote_average || 0) - (b.vote_average || 0);
+              case "title-asc":
+                return a.title.localeCompare(b.title);
+              case "title-desc":
+                return b.title.localeCompare(a.title);
+              case "date-desc":
+                return (b.release_date || "").localeCompare(a.release_date || "");
+              case "date-asc":
+                return (a.release_date || "").localeCompare(b.release_date || "");
+              default:
+                return 0;
+            }
+          });
+        }
+        
+        setMovies(sortedResults);
         setTotalPages(total_pages);
       } catch (err) {
         console.error(err);
+        setError(err instanceof Error ? err.message : "Failed to fetch movies");
       } finally {
         setLoading(false);
       }
@@ -58,7 +91,7 @@ const MainAppInner = () => {
     if (page > 1) params.set("page", page.toString());
 
     router.replace(`/?${params.toString()}`);
-  }, [mood, page, search, router]);
+  }, [mood, page, search, sortBy, router]);
 
   // Reset to page 1 if mood/search changes
   useEffect(() => {
@@ -76,16 +109,57 @@ const MainAppInner = () => {
         Shaflix: Mood-Based Movie Recommender
       </h1>
       <Navbar />
-      <SearchBar value={search} onChange={setSearch} />
-      <MoodSelector mood={mood} setMood={setMood} />
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <SearchBar value={search} onChange={setSearch} />
+        <ViewToggle view={viewMode} setView={setViewMode} />
+      </div>
+      <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
+        <MoodSelector mood={mood} setMood={setMood} />
+        <SortFilter sortBy={sortBy} setSortBy={setSortBy} />
+      </div>
       <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">{heading}</h2>
       {loading ? (
-        <p className="m-5 mt-1.5 text-xl md:text-2xl">Loading movies......</p>
+        <div className={`grid gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1 items-start ${
+          viewMode === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+            : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+        }`}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <MovieCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
+          <ErrorState
+            message={error}
+            onRetry={() => {
+              setError(null);
+              setLoading(true);
+              fetchMovies(mood.toLowerCase(), page, search)
+                .then(({ results, total_pages }) => {
+                  setMovies(results);
+                  setTotalPages(total_pages);
+                })
+                .catch((err) => setError(err.message))
+                .finally(() => setLoading(false));
+            }}
+          />
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} page="discover" />
+          <div className={`grid gap-4 md:gap-6 max-w-8xl mx-auto w-full py-1 items-start ${
+            viewMode === "grid"
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+          }`}>
+            {movies.map((movie, index) => (
+              <div
+                key={movie.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${Math.min(index * 30, 600)}ms` }}
+              >
+                <MovieCard movie={movie} page="discover" />
+              </div>
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />

@@ -14,9 +14,10 @@ interface MovieDialogProps {
   onClose: () => void;
   movie: Movie;
   credits: Credits | null;
+  trailer?: any;
 }
 
-export default function MovieDialog({ open, onClose, movie, credits }: MovieDialogProps) {
+export default function MovieDialog({ open, onClose, movie, credits, trailer }: MovieDialogProps) {
   const cast = credits?.cast?.slice(0, 3) || [];
   const director = credits?.crew?.find((c) => c.job === "Director");
 
@@ -27,37 +28,55 @@ export default function MovieDialog({ open, onClose, movie, credits }: MovieDial
           Movie details including title, release year, rating, and overview.
         </DialogDescription>
 
-        <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
-          <Image
-            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-            alt={movie.title}
-            width={250}
-            height={375}
-            className="w-[250px] h-auto mb-4 md:mb-0"
-          />
+        <div className="flex flex-col gap-4">
+          {/* Trailer Section */}
+          {trailer && (
+            <div className="w-full aspect-video">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${trailer.key}`}
+                title={trailer.name}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-lg"
+              />
+            </div>
+          )}
 
-          <div className="space-y-2 text-xl w-full">
-            <DialogTitle className="text-2xl font-bold underline text-center md:text-left">
-              {movie.title}
-            </DialogTitle>
+          <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
+            <Image
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+              width={250}
+              height={375}
+              className="w-[250px] h-auto mb-4 md:mb-0"
+            />
 
-            <p><strong>Release Year:</strong> {movie.release_date?.split("-")[0] || "N/A"}</p>
-            <p><strong>Rating:</strong> {movie.vote_average?.toFixed(1) || "N/A"}</p>
-            {director && (
-              <p>
-                <strong>Director:</strong> {director.name}
-              </p>
-            )}
+            <div className="space-y-2 text-xl w-full">
+              <DialogTitle className="text-2xl font-bold underline text-center md:text-left">
+                {movie.title}
+              </DialogTitle>
 
-            {cast.length > 0 && (
-              <p>
-                <strong>Cast:</strong>{" "}
-                {cast.map((actor) => actor.name).join(", ")}
-              </p>
-            )}
+              <p><strong>Release Year:</strong> {movie.release_date?.split("-")[0] || "N/A"}</p>
+              <p><strong>Rating:</strong> {movie.vote_average?.toFixed(1) || "N/A"}</p>
+              {director && (
+                <p>
+                  <strong>Director:</strong> {director.name}
+                </p>
+              )}
 
-            <p><strong>Synposis:</strong> {movie.overview || "No synopsis available."}</p>
+              {cast.length > 0 && (
+                <p>
+                  <strong>Cast:</strong>{" "}
+                  {cast.map((actor) => actor.name).join(", ")}
+                </p>
+              )}
 
+              <p><strong>Synposis:</strong> {movie.overview || "No synopsis available."}</p>
+
+            </div>
           </div>
         </div>
       </DialogContent>

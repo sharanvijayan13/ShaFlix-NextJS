@@ -2,7 +2,9 @@
 
 import Navbar from "../components/ui/Navbar";
 import MovieCard from "../components/ui/MovieCard";
+import EmptyState from "../components/ui/EmptyState";
 import { useMovieContext } from "../contexts/MovieContext";
+import { Eye } from "lucide-react";
 
 export default function Home() {
   const { watched } = useMovieContext();
@@ -15,9 +17,15 @@ export default function Home() {
       <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">
         Watched
       </h2>
-      <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto">
+      <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
         {watched.length === 0 ? (
-          <p className="text-center col-span-full mt-1.5">No watched movies yet.</p>
+          <EmptyState
+            icon={Eye}
+            title="No watched movies yet"
+            description="Mark movies as watched from your watchlist to keep track of what you've seen."
+            actionLabel="View Watchlist"
+            actionHref="/watchlist"
+          />
         ) : (
           watched.map((movie) => (
             <MovieCard key={movie.id} movie={movie} page="watched" />

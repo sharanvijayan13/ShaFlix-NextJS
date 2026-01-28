@@ -13,6 +13,54 @@ const moodGenreMap: Record<string, number> = {
   thrilled: 53,     // Thriller
 };
 
+const MOCK_MOVIES = [
+  {
+    id: 1,
+    title: "Mock Movie: Inception",
+    poster_path: null,
+    release_date: "2010-07-16",
+    overview: "This is a mock movie because the TMDB API is unreachable from your network. A thief who steals corporate secrets through the use of dream-sharing technology...",
+    vote_average: 8.8,
+    genre_ids: [28, 878, 12],
+  },
+  {
+    id: 2,
+    title: "Mock Movie: Interstellar",
+    poster_path: null,
+    release_date: "2014-11-07",
+    overview: "The adventures of a group of explorers who make use of a newly discovered wormhole...",
+    vote_average: 8.6,
+    genre_ids: [12, 18, 878],
+  },
+  {
+    id: 3,
+    title: "Mock Movie: The Dark Knight",
+    poster_path: null,
+    release_date: "2008-07-18",
+    overview: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham...",
+    vote_average: 9.0,
+    genre_ids: [18, 28, 80, 53],
+  },
+  {
+    id: 4,
+    title: "Mock Movie: Pulp Fiction",
+    poster_path: null,
+    release_date: "1994-10-14",
+    overview: "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine...",
+    vote_average: 8.9,
+    genre_ids: [53, 80],
+  },
+  {
+    id: 5,
+    title: "Mock Movie: Fight Club",
+    poster_path: null,
+    release_date: "1999-10-15",
+    overview: "An insomniac office worker and a devil-may-care soapmaker form an underground fight club...",
+    vote_average: 8.4,
+    genre_ids: [18],
+  }
+];
+
 export async function GET(req: NextRequest) {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
@@ -53,19 +101,20 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(url, { next: { revalidate: 60 } }); // cache for 60s
     if (!res.ok) {
-      const errorText = await res.text();
-      return NextResponse.json(
-        { error: "Failed to fetch movies", details: errorText },
-        { status: 500 }
-      );
+      console.error("TMDB error, falling back to mock data");
+      return NextResponse.json({
+        results: MOCK_MOVIES,
+        total_pages: 1
+      });
     }
 
     const data = await res.json();
     return NextResponse.json(data);
   } catch (err) {
-    return NextResponse.json(
-      { error: "Unexpected server error", details: String(err) },
-      { status: 500 }
-    );
+    console.error("TMDB fetch exception, falling back to mock data", err);
+    return NextResponse.json({
+      results: MOCK_MOVIES,
+      total_pages: 1
+    });
   }
 }

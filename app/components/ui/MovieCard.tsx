@@ -24,6 +24,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuthGuard } from "@/app/hooks/useAuthGuard";
+import { AuthDialog } from "@/app/components/AuthDialog";
+import { useApi } from "@/app/hooks/useApi";
 
 interface MovieCardProps {
   movie: Movie;
@@ -40,10 +43,19 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
     isInWatchlist,
     addToWatched,
     removeFromWatched,
-    saveDiaryEntry,
     getDiaryEntry,
-    hasDiaryEntry,
+    addDiaryEntry,
+    updateDiaryEntry,
   } = useMovieContext();
+
+  // Auth guard hook for protecting actions
+  const { guardAction, isAuthenticated, showAuthDialog, setShowAuthDialog } = useAuthGuard();
+  
+  // API hook for database operations
+  const api = useApi();
+
+  const diaryEntry = getDiaryEntry(movie.id);
+  const hasDiaryEntry = !!diaryEntry;
 
   const year = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
   const titleWithYear = `${movie.title} (${year})`;
@@ -77,37 +89,88 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
     }
   };
 
-  const handleAddToFavorites = () => {
+  // Wrap all auth-required actions with guardAction
+  // These will show toast and block execution if user is not authenticated
+  const handleAddToFavorites = guardAction(async () => {
     addToFavorites(movie);
     toast.success("Added to favorites!", { icon: "✅" });
-  };
-  const handleRemoveFromFavorites = () => {
+    
+    // Save to database
+    try {
+      await api.toggleFavorite(movie, "add");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "add to favorites");
+
+  const handleRemoveFromFavorites = guardAction(async () => {
     removeFromFavorites(movie.id);
     toast("Removed from favorites", { icon: "❌" });
-  };
-  const handleAddToWatchlist = () => {
+    
+    // Remove from database
+    try {
+      await api.toggleFavorite(movie, "remove");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "remove from favorites");
+
+  const handleAddToWatchlist = guardAction(async () => {
     addToWatchlist(movie);
     toast.success("Added to watchlist!", { icon: "✅" });
-  };
-  const handleRemoveFromWatchlist = () => {
+    
+    // Save to database
+    try {
+      await api.toggleWatchlist(movie, "add");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "add to watchlist");
+
+  const handleRemoveFromWatchlist = guardAction(async () => {
     removeFromWatchlist(movie.id);
     toast("Removed from watchlist", { icon: "❌" });
-  };
-  const handleUnwatch = () => {
+    
+    // Remove from database
+    try {
+      await api.toggleWatchlist(movie, "remove");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "remove from watchlist");
+
+  const handleUnwatch = guardAction(async () => {
     removeFromWatched(movie.id);
     addToWatchlist(movie);
     toast("Moved back to watchlist", { icon: "🔙" });
-  };
-  const handleWatched = () => {
+    
+    // Sync to database
+    try {
+      await api.toggleWatched(movie, "remove");
+      await api.toggleWatchlist(movie, "add");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "move to watchlist");
+
+  const handleWatched = guardAction(async () => {
     addToWatched(movie);
     removeFromWatchlist(movie.id);
     toast.success("Marked as watched!", { icon: "✅" });
-  };
+    
+    // Sync to database
+    try {
+      await api.toggleWatched(movie, "add");
+      await api.toggleWatchlist(movie, "remove");
+    } catch (error) {
+      console.error("Failed to sync to database:", error);
+    }
+  }, "mark as watched");
 
-  const handleDiaryClick = (e: React.MouseEvent) => {
+  const handleDiaryClick = guardAction((e: React.MouseEvent) => {
     e.stopPropagation();
     setDiaryDialogOpen(true);
-  };
+  }, "add diary entry");
 
   return (
     <>
@@ -201,7 +264,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       {favorite ? (
                         <Heart
-                          className="w-6 h-6 text-red-500 cursor-pointer"
+                          className={`w-6 h-6 text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           fill="currentColor"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -210,7 +273,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                         />
                       ) : (
                         <Heart
-                          className="w-6 h-6 hover:text-red-500 cursor-pointer"
+                          className={`w-6 h-6 hover:text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToFavorites();
@@ -219,7 +282,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                       )}
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{favorite ? "Remove from favorites" : "Add to favorites"}</p>
+                      <p>{!isAuthenticated ? "Sign in to add favorites" : favorite ? "Remove from favorites" : "Add to favorites"}</p>
                     </TooltipContent>
                   </Tooltip>
 
@@ -227,7 +290,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       {inWatchlist ? (
                         <Bookmark
-                          className="w-6 h-6 text-blue-500 cursor-pointer"
+                          className={`w-6 h-6 text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           fill="currentColor"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -236,7 +299,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                         />
                       ) : (
                         <Bookmark
-                          className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                          className={`w-6 h-6 hover:text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToWatchlist();
@@ -245,7 +308,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                       )}
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{inWatchlist ? "Remove from watchlist" : "Add to watchlist"}</p>
+                      <p>{!isAuthenticated ? "Sign in to add to watchlist" : inWatchlist ? "Remove from watchlist" : "Add to watchlist"}</p>
                     </TooltipContent>
                   </Tooltip>
                 </>
@@ -353,24 +416,15 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       <BookOpen
                         className={`w-6 h-6 cursor-pointer ${
-                          hasDiaryEntry(movie.id)
+                          hasDiaryEntry
                             ? "text-blue-500 fill-blue-500"
                             : "text-blue-400 hover:text-blue-600"
                         }`}
                         onClick={handleDiaryClick}
                       />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      {hasDiaryEntry(movie.id) ? (
-                        <div>
-                          <p className="font-semibold mb-1">Diary Entry:</p>
-                          <p className="text-xs line-clamp-3">
-                            {getDiaryEntry(movie.id)?.text}
-                          </p>
-                        </div>
-                      ) : (
-                        <p>Add diary entry</p>
-                      )}
+                    <TooltipContent>
+                      <p>{hasDiaryEntry ? "Edit diary entry" : "Add diary entry"}</p>
                     </TooltipContent>
                   </Tooltip>
                 </>
@@ -392,9 +446,11 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
         open={diaryDialogOpen}
         onClose={() => setDiaryDialogOpen(false)}
         movie={movie}
-        initialDiaryEntry={getDiaryEntry(movie.id)}
-        onSave={saveDiaryEntry}
+        initialDiaryEntry={diaryEntry}
       />
+
+      {/* Auth Dialog - triggered from auth guard toast action */}
+      <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
     </>
   );
 });

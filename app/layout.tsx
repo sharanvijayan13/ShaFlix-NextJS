@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MovieProvider } from "@/app/contexts/MovieContext";
+import { AuthProvider } from "@/app/contexts/AuthContext";
 import { Toaster } from '@/components/ui/sonner';
 import ThemeProvider from "@/app/components/ThemeProvider";
 
@@ -37,9 +38,11 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <Toaster position="bottom-center" />
-          <MovieProvider>
-            {children}
-          </MovieProvider>
+          <AuthProvider>
+            <MovieProvider>
+              {children}
+            </MovieProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
 import SearchBar from "./ui/SearchBar";
 import MoodSelector from "./ui/MoodSelector";
-import SortFilter from "./ui/SortFilter";
 import MovieCard from "./ui/MovieCard";
 import MovieCardSkeleton from "./ui/MovieCardSkeleton";
 import ErrorState from "./ui/ErrorState";
@@ -87,7 +86,6 @@ export default function HomeContent({
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [search, setSearch] = useState(initialSearch);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
     const moodParam = searchParams.get("mood") || "popular";
@@ -110,30 +108,7 @@ export default function HomeContent({
           search
         );
         
-        // Apply sorting
-        let sortedResults = [...results];
-        if (sortBy !== "default") {
-          sortedResults.sort((a, b) => {
-            switch (sortBy) {
-              case "rating-desc":
-                return (b.vote_average || 0) - (a.vote_average || 0);
-              case "rating-asc":
-                return (a.vote_average || 0) - (b.vote_average || 0);
-              case "title-asc":
-                return a.title.localeCompare(b.title);
-              case "title-desc":
-                return b.title.localeCompare(a.title);
-              case "date-desc":
-                return (b.release_date || "").localeCompare(a.release_date || "");
-              case "date-asc":
-                return (a.release_date || "").localeCompare(b.release_date || "");
-              default:
-                return 0;
-            }
-          });
-        }
-        
-        setMovies(sortedResults);
+        setMovies(results);
         setTotalPages(total_pages);
       } catch (err) {
         console.error(err);
@@ -150,7 +125,7 @@ export default function HomeContent({
     if (page > 1) params.set("page", page.toString());
 
     router.replace(`/?${params.toString()}`);
-  }, [mood, page, search, sortBy, router]);
+  }, [mood, page, search, router]);
 
   useEffect(() => {
     setPage(1);
@@ -171,7 +146,6 @@ export default function HomeContent({
       <SearchBar value={search} onChange={setSearch} />
       <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
         <MoodSelector mood={mood} setMood={setMood} />
-        <SortFilter sortBy={sortBy} setSortBy={setSortBy} />
       </div>
 
       <h2 className="text-sm md:text-2xl font-bold mt-5 m-4 text-center md:text-left">

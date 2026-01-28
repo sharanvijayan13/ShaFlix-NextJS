@@ -3,16 +3,15 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Movie } from "@/app/types";
+import { Movie, DiaryEntry } from "@/app/types";
 import { toast } from "sonner";
-import { DiaryEntry } from "@/app/contexts/MovieContext";
+import { useMovieContext } from "@/app/contexts/MovieContext";
 
 interface DiaryDialogProps {
   open: boolean;
   onClose: () => void;
   movie: Movie;
   initialDiaryEntry?: DiaryEntry;
-  onSave: (movieId: number, diaryEntry: string) => void;
 }
 
 export default function DiaryDialog({
@@ -20,28 +19,42 @@ export default function DiaryDialog({
   onClose,
   movie,
   initialDiaryEntry,
-  onSave,
 }: DiaryDialogProps) {
-  const [diaryEntry, setDiaryEntry] = useState(initialDiaryEntry?.text || "");
+  const { addDiaryEntry, updateDiaryEntry } = useMovieContext();
+  const [diaryEntry, setDiaryEntry] = useState(initialDiaryEntry?.review || "");
 
   useEffect(() => {
-    setDiaryEntry(initialDiaryEntry?.text || "");
+    setDiaryEntry(initialDiaryEntry?.review || "");
   }, [initialDiaryEntry, open]);
 
   const handleSave = () => {
-    onSave(movie.id, diaryEntry);
+    if (initialDiaryEntry) {
+      // Update existing entry
+      updateDiaryEntry(initialDiaryEntry.id, {
+        review: diaryEntry,
+      });
+    } else {
+      // Create new entry
+      addDiaryEntry({
+        movieId: movie.id,
+        watchedDate: new Date().toISOString(),
+        review: diaryEntry,
+        tags: [],
+        rewatch: false,
+      });
+    }
     toast.success("Entry saved!", { icon: "📒" });
     onClose();
   };
 
   const handleClose = () => {
-    setDiaryEntry(initialDiaryEntry?.text || "");
+    setDiaryEntry(initialDiaryEntry?.review || "");
     onClose();
   };
 
   let lastEntryDate = "";
-  if (initialDiaryEntry?.date && initialDiaryEntry.text) {
-    const d = new Date(initialDiaryEntry.date);
+  if (initialDiaryEntry?.watchedDate && initialDiaryEntry.review) {
+    const d = new Date(initialDiaryEntry.watchedDate);
     lastEntryDate = d.toLocaleString(undefined, {
       year: "numeric",
       month: "short",

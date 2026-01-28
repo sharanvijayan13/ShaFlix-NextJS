@@ -3,19 +3,40 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { X } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
+import { X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { AuthDialog } from "@/app/components/AuthDialog";
+import { isFirebaseConfigured } from "@/app/lib/firebase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const { user, signOut } = useAuth();
 
-  const navLinks = [
-    { href: "/", label: "Discover" },
-    { href: "/favorites", label: "Favorites" },
-    { href: "/watchlist", label: "Watchlist" },
-    { href: "/watched", label: "Watched" },
+  // Define all navigation links
+  const allNavLinks = [
+    { href: "/", label: "Discover", authRequired: false },
+    { href: "/favorites", label: "Favorites", authRequired: true },
+    { href: "/watchlist", label: "Watchlist", authRequired: true },
+    { href: "/watched", label: "Watched", authRequired: true },
+    { href: "/diary", label: "Diary", authRequired: true },
   ];
+
+  // Filter nav links based on authentication status
+  // Unauthenticated users only see "Discover"
+  const navLinks = user 
+    ? allNavLinks 
+    : allNavLinks.filter(link => !link.authRequired);
 
   return (
     <div className="navbar-container relative z-10">
@@ -30,7 +51,56 @@ export default function Navbar() {
             {link.label}
           </Link>
         ))}
-        <ThemeToggle />
+        
+        {/* User Menu - Only show if Firebase is configured */}
+        {isFirebaseConfigured && (
+          user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.photoURL || ""} alt={user.email || ""} />
+                    <AvatarFallback className="bg-[#1db954] text-white">
+                      {user.email?.[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user.displayName || "User"}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/lists" className="cursor-pointer">
+                    Lists
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              onClick={() => setShowAuthDialog(true)}
+              className="bg-[#1db954] hover:bg-[#1ed760] text-white"
+            >
+              Sign In
+            </Button>
+          )
+        )}
       </div>
 
       {/* Mobile Navigation */}
@@ -94,11 +164,58 @@ export default function Navbar() {
                   </li>
                 ))}
               </ul>
+              
+              {/* Mobile Auth - Only show if Firebase is configured */}
+              {isFirebaseConfigured && (
+                <div className="mt-8 px-4">
+                  {user ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 pb-4 border-b border-gray-800">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={user.photoURL || ""} />
+                          <AvatarFallback className="bg-[#1db954]">
+                            {user.email?.[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {user.displayName || "User"}
+                          </p>
+                          <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          signOut();
+                          setIsMenuOpen(false);
+                        }}
+                        variant="outline"
+                        className="w-full text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setShowAuthDialog(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full bg-[#1db954] hover:bg-[#1ed760]"
+                    >
+                      Sign In
+                    </Button>
+                  )}
+                </div>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
-        <ThemeToggle />
       </div>
+
+      {/* Auth Dialog */}
+      <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
     </div>
   );
 }

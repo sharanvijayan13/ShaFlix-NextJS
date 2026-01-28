@@ -14,7 +14,7 @@ interface MovieDialogProps {
   onClose: () => void;
   movie: Movie;
   credits: Credits | null;
-  trailer?: any;
+  trailer?: { key: string; site: string; type: string; name: string } | null;
 }
 
 export default function MovieDialog({ open, onClose, movie, credits, trailer }: MovieDialogProps) {

@@ -44,8 +44,6 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
     addToWatched,
     removeFromWatched,
     getDiaryEntry,
-    addDiaryEntry,
-    updateDiaryEntry,
   } = useMovieContext();
 
   // Auth guard hook for protecting actions
@@ -70,7 +68,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [credits, setCredits] = useState<Credits | null>(null);
-  const [trailer, setTrailer] = useState<any>(null);
+  const [trailer, setTrailer] = useState<{ key: string; site: string; type: string; name: string } | null>(null);
   const [diaryDialogOpen, setDiaryDialogOpen] = useState(false);
   const [imageLoading, setImageLoading] = useState(movie.poster_path ? true : false);
   const [imageError, setImageError] = useState(!movie.poster_path);
@@ -167,10 +165,12 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
     }
   }, "mark as watched");
 
-  const handleDiaryClick = guardAction((e: React.MouseEvent) => {
+  const handleDiaryClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setDiaryDialogOpen(true);
-  }, "add diary entry");
+    guardAction(() => {
+      setDiaryDialogOpen(true);
+    }, "add diary entry")();
+  };
 
   return (
     <>

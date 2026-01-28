@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, createAuthError } from "@/app/lib/auth-middleware";
 import { db } from "@/app/db";
-import { favorites, movies } from "@/app/db/schema";
+import { favorites } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ensureMovieExists } from "@/app/lib/movie-cache";
 import { Movie } from "@/app/types";
@@ -50,8 +50,9 @@ export async function GET(request: NextRequest) {
 
     return Response.json({ favorites: movieList });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to fetch favorites", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch favorites";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -93,7 +94,8 @@ export async function POST(request: NextRequest) {
 
     return createAuthError("Invalid action", 400);
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to update favorites", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update favorites";
+    return createAuthError(errorMessage, 500);
   }
 }

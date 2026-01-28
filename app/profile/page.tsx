@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit, Film, Heart, List, BookOpen } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { userProfile, updateProfile, favorites, diaryEntries, customLists, watched } = useMovieContext();
@@ -162,12 +162,14 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-function MoviePoster({ movie }: { movie: any }) {
+function MoviePoster({ movie }: { movie: { id: number; title: string; poster_path: string } }) {
   return (
     <div className="relative group cursor-pointer">
-      <img
+      <Image
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
         alt={movie.title}
+        width={500}
+        height={750}
         className="w-full rounded-lg shadow-lg group-hover:scale-105 transition-transform"
       />
       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">

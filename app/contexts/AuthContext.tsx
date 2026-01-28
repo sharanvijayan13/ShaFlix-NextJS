@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { 
   User, 
   signInWithEmailAndPassword, 
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isFirebaseConfigured = auth !== null;
 
   // Sync localStorage data to backend on first login
-  const syncLocalStorageData = async (idToken: string) => {
+  const syncLocalStorageData = useCallback(async (idToken: string) => {
     if (synced || !isFirebaseConfigured) return;
 
     try {
@@ -107,10 +107,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Mark as synced to prevent retry loops
       setSynced(true);
     }
-  };
+  }, [synced, isFirebaseConfigured]);
 
   useEffect(() => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
       setLoading(false);
       return;
     }
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [isFirebaseConfigured]);
+  }, [isFirebaseConfigured, syncLocalStorageData]);
 
   const signIn = async (email: string, password: string) => {
     if (!isFirebaseConfigured || !auth) {
@@ -136,8 +136,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Signed in successfully!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to sign in";
+      toast.error(errorMessage);
       throw error;
     }
   };
@@ -150,8 +151,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       toast.success("Account created successfully!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create account";
+      toast.error(errorMessage);
       throw error;
     }
   };
@@ -164,10 +166,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google!");
-    } catch (error: any) {
+    } catch (error) {
       // Don't show error if user simply closed the popup
-      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
-        toast.error(error.message || "Failed to sign in with Google");
+      const err = error as { code?: string; message?: string };
+      if (err?.code !== "auth/popup-closed-by-user" && err?.code !== "auth/cancelled-popup-request") {
+        const errorMessage = err?.message || "Failed to sign in with Google";
+        toast.error(errorMessage);
       }
       throw error;
     }
@@ -182,8 +186,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await firebaseSignOut(auth);
       setSynced(false);
       toast.success("Signed out successfully!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to sign out");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to sign out";
+      toast.error(errorMessage);
       throw error;
     }
   };

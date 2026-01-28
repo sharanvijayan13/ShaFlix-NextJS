@@ -81,7 +81,7 @@ export const fetchMovies = async (
   return { results: data.results, total_pages: data.total_pages };
 };
 
-export async function getMovieCredits(movieId: number) {
+export const getMovieCredits = async (movieId: number) => {
   try {
     const url = `${TMDB_BASE_URL}/movie/${movieId}/credits?language=en-US&api_key=${API_KEY}`;
 
@@ -95,7 +95,7 @@ export async function getMovieCredits(movieId: number) {
   }
 }
 
-export async function getMovieVideos(movieId: number) {
+export const getMovieVideos = async (movieId: number) => {
   try {
     console.log(`[getMovieVideos] Fetching trailer for movie ID: ${movieId}`);
     
@@ -171,7 +171,7 @@ async function searchYouTubeTrailer(movieTitle: string, releaseYear?: string, or
     
     if (data.items && data.items.length > 0) {
       // Find the first video that looks like an official trailer
-      const trailer = data.items.find((item: any) => {
+      const trailer = data.items.find((item: { snippet: { title: string } }) => {
         const title = item.snippet.title.toLowerCase();
         return title.includes('trailer') || title.includes('official');
       }) || data.items[0]; // Fallback to first result

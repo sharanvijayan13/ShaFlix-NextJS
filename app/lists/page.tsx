@@ -196,7 +196,7 @@ export default function ListsPage() {
             <div className="w-24 h-24 rounded-full bg-[#1F2428] border-2 border-[#2C3440] flex items-center justify-center mb-6">
               <Film className="w-12 h-12 text-[#6B7280]" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">You haven't created any lists yet.</h2>
+            <h2 className="text-2xl font-bold mb-2">You haven&apos;t created any lists yet.</h2>
             <p className="text-[#9CA3AF] mb-8 text-center max-w-md">
               Lists are a great way to organize and share your favorite films.
             </p>

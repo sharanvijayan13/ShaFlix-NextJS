@@ -216,8 +216,9 @@ export async function POST(request: NextRequest) {
       message: "Data synced successfully" 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Sync error:", error);
-    return createAuthError(error.message || "Failed to sync data", 500);
+    const errorMessage = error instanceof Error ? error.message : "Failed to sync data";
+    return createAuthError(errorMessage, 500);
   }
 }

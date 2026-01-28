@@ -34,8 +34,9 @@ export async function GET(request: NextRequest) {
 
     return Response.json({ watchlist: movieList });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to fetch watchlist", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch watchlist";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -74,7 +75,8 @@ export async function POST(request: NextRequest) {
 
     return createAuthError("Invalid action", 400);
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to update watchlist", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update watchlist";
+    return createAuthError(errorMessage, 500);
   }
 }

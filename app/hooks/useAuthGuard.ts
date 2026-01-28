@@ -20,11 +20,11 @@ export function useAuthGuard() {
    * @param actionName - Optional name for the action (for better toast messages)
    * @returns A wrapped function that performs auth check before executing
    */
-  const guardAction = <T extends (...args: any[]) => any>(
+  const guardAction = <T extends (...args: unknown[]) => unknown>(
     action: T,
     actionName?: string
   ): ((...args: Parameters<T>) => ReturnType<T> | void) => {
-    return (...args: Parameters<T>) => {
+    return (...args: Parameters<T>): ReturnType<T> | void => {
       if (!user) {
         // User is not authenticated - block the action
         const message = actionName 
@@ -39,11 +39,11 @@ export function useAuthGuard() {
           duration: 4000,
         });
         
-        return;
+        return undefined as ReturnType<T> | void;
       }
 
       // User is authenticated - execute the action
-      return action(...args);
+      return action(...args) as ReturnType<T>;
     };
   };
 

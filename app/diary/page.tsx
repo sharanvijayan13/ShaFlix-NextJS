@@ -42,6 +42,21 @@ export default function DiaryPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
+  const monthNames = useMemo(() => [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ], []);
+
   const stats = useMemo(() => {
     const avgRating =
       diaryEntries.reduce((sum, e) => sum + (e.rating || 0), 0) /
@@ -96,7 +111,7 @@ export default function DiaryPage() {
             try {
               const credits = await getMovieCredits(entry.movieId);
               director = credits.crew?.find(
-                (person: any) => person.job === "Director"
+                (person: { job: string; name: string }) => person.job === "Director"
               )?.name;
             } catch {
               // Ignore credits errors
@@ -147,21 +162,6 @@ export default function DiaryPage() {
   const nextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
-
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
 
   const days = [];
   for (let i = 0; i < startingDayOfWeek; i++) {
@@ -216,7 +216,7 @@ export default function DiaryPage() {
       groups[key].push(entry);
     });
     return groups;
-  }, [sortedEntries]);
+  }, [sortedEntries, monthNames]);
 
   return (
     <div className="min-h-screen bg-[#14181C] text-[#E5E7EB]">

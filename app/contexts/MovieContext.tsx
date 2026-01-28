@@ -105,14 +105,17 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         setDiaryEntries(parsed);
       } else {
         // Convert old Record<number, {text, date}> to new DiaryEntry[]
-        const migratedEntries: DiaryEntry[] = Object.entries(parsed).map(([movieId, entry]: [string, any]) => ({
-          id: `diary-migrated-${movieId}`,
-          movieId: parseInt(movieId),
-          watchedDate: entry.date || new Date().toISOString(),
-          review: entry.text || "",
-          tags: [],
-          rewatch: false,
-        }));
+        const migratedEntries: DiaryEntry[] = Object.entries(parsed).map(([movieId, entry]) => {
+          const oldEntry = entry as { text?: string; date?: string };
+          return {
+            id: `diary-migrated-${movieId}`,
+            movieId: parseInt(movieId),
+            watchedDate: oldEntry.date || new Date().toISOString(),
+            review: oldEntry.text || "",
+            tags: [],
+            rewatch: false,
+          };
+        });
         setDiaryEntries(migratedEntries);
       }
     }

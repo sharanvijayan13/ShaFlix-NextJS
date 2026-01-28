@@ -34,18 +34,19 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       onOpenChange(false);
       setEmail("");
       setPassword("");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Auth error:", error);
       // Provide user-friendly error messages
-      const errorMessage = error?.code === "auth/invalid-credential" || error?.code === "auth/wrong-password"
+      const err = error as { code?: string; message?: string };
+      const errorMessage = err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password"
         ? "Invalid email or password."
-        : error?.code === "auth/user-not-found"
+        : err?.code === "auth/user-not-found"
         ? "No account found with this email."
-        : error?.code === "auth/email-already-in-use"
+        : err?.code === "auth/email-already-in-use"
         ? "An account with this email already exists."
-        : error?.code === "auth/weak-password"
+        : err?.code === "auth/weak-password"
         ? "Password should be at least 6 characters."
-        : error?.message || "Authentication failed. Please try again.";
+        : err?.message || "Authentication failed. Please try again.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -58,11 +59,12 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     try {
       await signInWithGoogle();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Google sign in error:", error);
       // Don't show error if user simply closed the popup
-      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
-        setError(error?.message || "Google sign-in failed. Please try again.");
+      const err = error as { code?: string; message?: string };
+      if (err?.code !== "auth/popup-closed-by-user" && err?.code !== "auth/cancelled-popup-request") {
+        setError(err?.message || "Google sign-in failed. Please try again.");
       }
     } finally {
       setLoading(false);

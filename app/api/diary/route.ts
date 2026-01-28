@@ -44,8 +44,9 @@ export async function GET(request: NextRequest) {
 
     return Response.json({ entries: formattedEntries });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to fetch diary entries", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch diary entries";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -101,8 +102,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to create diary entry", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to create diary entry";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -130,7 +132,8 @@ export async function DELETE(request: NextRequest) {
 
     return Response.json({ success: true });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to delete diary entry", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to delete diary entry";
+    return createAuthError(errorMessage, 500);
   }
 }

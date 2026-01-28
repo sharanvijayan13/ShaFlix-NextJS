@@ -48,8 +48,9 @@ export async function GET(request: NextRequest) {
 
     return Response.json({ lists: formattedLists });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to fetch lists", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch lists";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -88,8 +89,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to create list", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to create list";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -179,8 +181,9 @@ export async function PATCH(request: NextRequest) {
 
     return Response.json({ success: true });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to update list", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update list";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -208,7 +211,8 @@ export async function DELETE(request: NextRequest) {
 
     return Response.json({ success: true });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to delete list", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to delete list";
+    return createAuthError(errorMessage, 500);
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "../contexts/AuthContext";
-import { Movie, DiaryEntry, CustomList } from "../types";
+import { Movie } from "../types";
 
 /**
  * Custom hook for making authenticated API calls

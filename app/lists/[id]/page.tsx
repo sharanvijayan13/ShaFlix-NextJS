@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useMovieContext } from "@/app/contexts/MovieContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +15,6 @@ import Image from "next/image";
 
 export default function ListDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const listId = params.id as string;
   
   const { customLists, addMovieToList, removeMovieFromList, reorderListMovies } = useMovieContext();

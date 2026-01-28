@@ -58,8 +58,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to fetch profile", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch profile";
+    return createAuthError(errorMessage, 500);
   }
 }
 
@@ -89,7 +90,8 @@ export async function PATCH(request: NextRequest) {
 
     return Response.json({ success: true });
 
-  } catch (error: any) {
-    return createAuthError(error.message || "Failed to update profile", 500);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update profile";
+    return createAuthError(errorMessage, 500);
   }
 }

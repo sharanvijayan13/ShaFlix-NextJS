@@ -4,7 +4,7 @@ import Navbar from "../components/ui/Navbar";
 import MovieCard from "../components/ui/MovieCard";
 import EmptyState from "../components/ui/EmptyState";
 import { useMovieContext } from "../contexts/MovieContext";
-import { Eye, LogOut, BookOpen, List, Edit } from "lucide-react";
+import { Eye, LogOut, BookOpen, List } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { isFirebaseConfigured } from "../lib/firebase";

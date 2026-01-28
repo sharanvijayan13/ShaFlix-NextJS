@@ -21,8 +21,8 @@ export const isFirebaseConfigured = firebaseConfig.apiKey &&
   firebaseConfig.projectId !== "your-project-id";
 
 // Initialize Firebase (client-side) only if configured
-let app: any = null;
-let auth: any = null;
+let app: ReturnType<typeof initializeApp> | null = null;
+let auth: ReturnType<typeof getAuth> | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
 
 if (isFirebaseConfigured) {
@@ -45,7 +45,7 @@ export const getAnalyticsInstance = () => {
 };
 
 // Analytics event tracking helpers
-export const logAnalyticsEvent = (eventName: string, params?: Record<string, any>) => {
+export const logAnalyticsEvent = (eventName: string, params?: Record<string, unknown>) => {
   const analyticsInstance = getAnalyticsInstance();
   if (analyticsInstance) {
     firebaseLogEvent(analyticsInstance, eventName, params);

@@ -3,19 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { X, User, LogOut, Eye, BookOpen, List, Film, Heart, Bookmark } from "lucide-react";
+import { LogOut, Eye, BookOpen, List, Film, Heart, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { AuthDialog } from "@/app/components/AuthDialog";
 import { isFirebaseConfigured } from "@/app/lib/firebase";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMovieContext } from "@/app/contexts/MovieContext";
 

@@ -15,7 +15,6 @@ export default function StarRating({
   showNumber = true,
   size = "md",
 }: StarRatingProps) {
-  const percentage = (rating / maxRating) * 100;
   const stars = 5;
   const filledStars = Math.round((rating / maxRating) * stars);
 

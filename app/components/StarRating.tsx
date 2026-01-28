@@ -30,8 +30,6 @@ export default function StarRating({ rating, onRatingChange, readonly = false, s
   return (
     <div className="flex gap-1">
       {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((value) => {
-        const isHalf = value % 1 !== 0;
-        const starIndex = Math.ceil(value);
         const isFilled = displayRating >= value;
         const isHalfFilled = !isFilled && displayRating >= value - 0.5;
 

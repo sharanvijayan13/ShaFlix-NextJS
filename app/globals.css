@@ -114,10 +114,31 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Remove outline/ring on all inputs and change border to green on focus */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #00E054 !important;
+  }
+  
+  /* Remove outline from all focusable elements */
+  *:focus {
+    outline: none !important;
+  }
+  
+  /* Keep focus visible for accessibility on interactive elements */
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #00E054;
+    outline-offset: 2px;
   }
 }
 
@@ -132,9 +153,22 @@
   }
 }
 
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.3s ease-out forwards;
   opacity: 0;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
 }
 
 /* Disable animations for users who prefer reduced motion */
@@ -146,19 +180,6 @@
   }
 }
 
-/* Enhanced focus states for accessibility */
-*:focus-visible {
-  outline: 2px solid #1db954;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid #1db954;
-  outline-offset: 2px;
-}
-
 /* Performance optimizations */
 * {
   -webkit-font-smoothing: antialiased;
@@ -167,4 +188,26 @@ a:focus-visible {
 
 img {
   content-visibility: auto;
+}
+
+/* Sign In Button Styles */
+.signin-btn {
+  background-color: #22c55e; /* green */
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 9999px; /* pill shape */
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.signin-btn:hover {
+  background-color: #16a34a;
+  transform: translateY(-1px);
+}
+
+.signin-btn:active {
+  transform: scale(0.97);
 }

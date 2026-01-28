@@ -10,6 +10,25 @@ import ErrorState from "./ui/ErrorState";
 import { fetchMovies } from "../lib/api";
 import { Movie } from "../types";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "../contexts/AuthContext";
+import { AuthDialog } from "./AuthDialog";
+import { Button } from "@/components/ui/button";
+import { isFirebaseConfigured } from "../lib/firebase";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut, Eye, BookOpen, List, Edit } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useMovieContext } from "../contexts/MovieContext";
 
 function Pagination({
   page,
@@ -78,6 +97,23 @@ export default function HomeContent({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, signOut } = useAuth();
+  const { userProfile, updateProfile } = useMovieContext();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  
+  // Extract username from email if profile username is empty
+  const getDisplayName = () => {
+    if (userProfile.username) return userProfile.username;
+    if (user?.email) return user.email.split('@')[0];
+    return user?.displayName || "User";
+  };
+  
+  const [editForm, setEditForm] = useState({
+    ...userProfile,
+    username: getDisplayName()
+  });
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
 
   const [mood, setMood] = useState(initialMood);
   const [movies, setMovies] = useState<Movie[]>(initialMovies);
@@ -131,6 +167,25 @@ export default function HomeContent({
     setPage(1);
   }, [mood, search]);
 
+  const handleSaveProfile = () => {
+    updateProfile(editForm);
+    setShowEditDialog(false);
+    setProfilePicPreview(null);
+  };
+
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setProfilePicPreview(result);
+        setEditForm({ ...editForm, avatarUrl: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const showSearch = search.trim().length > 0;
   const heading = showSearch
     ? `Search results for "${search}"`
@@ -138,11 +193,99 @@ export default function HomeContent({
 
   return (
     <div className="flex flex-col p-6 bg-black text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-5">
-        Shaflix: Mood-Based Movie Recommender
-      </h1>
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-3xl font-bold">
+          Shaflix
+        </h1>
+        
+        {/* Hamburger on mobile - same row */}
+        <div className="md:hidden">
+          <Navbar />
+        </div>
+        
+        {/* Sign In button or User Avatar at top right - Desktop only */}
+        {isFirebaseConfigured && (
+          !user ? (
+            <Button 
+              onClick={() => setShowAuthDialog(true)}
+              className="hidden md:block bg-[#1db954] hover:bg-[#1ed760] text-white px-6"
+            >
+              Sign In
+            </Button>
+          ) : (
+            <div className="hidden md:flex items-center gap-4">
+              <span className="text-[#9CA3AF] text-base font-medium">
+                Hi, {getDisplayName()}!
+              </span>
+              <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0 hover:bg-transparent group">
+                  <div className="relative">
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 rounded-full bg-[#00E054] opacity-0 group-hover:opacity-30 blur-md transition-all duration-500"></div>
+                    
+                    {/* Avatar with border */}
+                    <Avatar className="relative h-11 w-11 border-[3px] border-[#2C3440] group-hover:border-[#00E054] group-hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg">
+                      <AvatarImage src={userProfile.avatarUrl || user.photoURL || ""} alt={user.email || ""} className="object-cover" />
+                      <AvatarFallback className="bg-[#1F2428] text-[#00E054] font-bold text-lg border-2 border-[#00E054]">
+                        {getDisplayName()[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* Small accent dot with pulse animation for mobile */}
+                    <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#00E054] rounded-full border-[2.5px] border-black group-hover:scale-110 transition-transform duration-300">
+                      <div className="absolute inset-0 rounded-full bg-[#00E054] animate-ping opacity-75"></div>
+                    </div>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{getDisplayName()}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="cursor-pointer">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/watched" className="cursor-pointer">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Watched
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/diary" className="cursor-pointer">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Diary
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/lists" className="cursor-pointer">
+                    <List className="mr-2 h-4 w-4" />
+                    Lists
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />                
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            </div>
+          )
+        )}
+      </div>
 
-      <Navbar />
+      {/* Desktop Navbar only */}
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
+      
       <SearchBar value={search} onChange={setSearch} />
       <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
         <MoodSelector mood={mood} setMood={setMood} />
@@ -153,7 +296,7 @@ export default function HomeContent({
       </h2>
 
       {loading ? (
-        <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
+        <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto sm:items-start">
           {Array.from({ length: 10 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
@@ -177,7 +320,7 @@ export default function HomeContent({
         </div>
       ) : (
         <>
-          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
+          <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto sm:items-start">
             {movies.map((movie, index) => (
               <div
                 key={movie.id}
@@ -192,6 +335,92 @@ export default function HomeContent({
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
       )}
+
+      <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="bg-[#1F2428] border-[#2C3440] text-[#E5E7EB]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">EDIT PROFILE</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-xs font-semibold mb-3 block uppercase tracking-wide text-[#9CA3AF]">
+                Profile Picture
+              </label>
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={profilePicPreview || editForm.avatarUrl} />
+                    <AvatarFallback className="bg-[#00E054] text-[#14181C] text-3xl">
+                      {editForm.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <label 
+                    htmlFor="profile-pic-upload"
+                    className="absolute bottom-0 right-0 h-8 w-8 bg-[#00E054] hover:bg-[#00E054]/90 rounded-full flex items-center justify-center cursor-pointer transition-colors border-2 border-[#1F2428]"
+                  >
+                    <Edit className="w-4 h-4 text-[#14181C]" />
+                  </label>
+                  <input
+                    id="profile-pic-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePicChange}
+                    className="hidden"
+                  />
+                </div>
+                <p className="text-xs text-[#6B7280] text-center">
+                  Click the icon to upload a photo
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold mb-2 block uppercase tracking-wide text-[#9CA3AF]">
+                Display Name
+              </label>
+              <Input
+                placeholder="Your name"
+                value={editForm.username}
+                onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                className="bg-[#14181C] border-[#2C3440] focus:border-[#00E054] text-[#E5E7EB]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold mb-2 block uppercase tracking-wide text-[#9CA3AF]">
+                Bio
+              </label>
+              <Textarea
+                placeholder="Tell us about yourself..."
+                value={editForm.bio}
+                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                rows={3}
+                className="bg-[#14181C] border-[#2C3440] focus:border-[#00E054] text-[#E5E7EB] resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowEditDialog(false)}
+                className="border-[#2C3440] hover:border-[#6B7280] hover:bg-transparent"
+              >
+                CANCEL
+              </Button>
+              <Button 
+                onClick={handleSaveProfile}
+                className="bg-[#00E054] hover:bg-[#00E054]/90 text-[#14181C] font-semibold"
+              >
+                SAVE CHANGES
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

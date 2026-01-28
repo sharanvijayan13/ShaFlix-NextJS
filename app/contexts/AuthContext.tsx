@@ -93,13 +93,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           localStorage.removeItem("customLists");
           
           toast.success("Your data has been synced!");
-          setSynced(true);
+        } else {
+          const errorText = await response.text();
+          console.error("Sync failed with status:", response.status, errorText);
+          // Don't show error to user, just log it
         }
-      } else {
-        setSynced(true);
       }
+      
+      // Mark as synced regardless to prevent retry loops
+      setSynced(true);
     } catch (error) {
       console.error("Failed to sync data:", error);
+      // Mark as synced to prevent retry loops
+      setSynced(true);
     }
   };
 
@@ -159,7 +165,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in with Google");
+      // Don't show error if user simply closed the popup
+      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
+        toast.error(error.message || "Failed to sign in with Google");
+      }
       throw error;
     }
   };

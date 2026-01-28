@@ -70,9 +70,9 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [customLists, setCustomLists] = useState<CustomList[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    username: "Movie Lover",
-    handle: "@movielover",
-    bio: "Passionate about cinema",
+    username: "",
+    handle: "",
+    bio: "",
     avatarUrl: "",
     stats: {
       moviesWatched: 0,

@@ -8,11 +8,10 @@ import StarRating from "../components/StarRating";
 import {
   Calendar,
   Film,
-  Star,
-  Clock,
   ChevronLeft,
   ChevronRight,
-  Heart,
+  Plus,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,7 +19,6 @@ import { getMovieCredits } from "../lib/api";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -51,8 +49,11 @@ export default function DiaryPage() {
     const thisMonth = diaryEntries.filter(
       (e) => new Date(e.watchedDate).getMonth() === new Date().getMonth()
     ).length;
+    const thisYear = diaryEntries.filter(
+      (e) => new Date(e.watchedDate).getFullYear() === new Date().getFullYear()
+    ).length;
 
-    return { avgRating, thisMonth };
+    return { avgRating, thisMonth, thisYear };
   }, [diaryEntries]);
 
   // Sort entries by date (most recent first)
@@ -108,8 +109,6 @@ export default function DiaryPage() {
               director,
               release_date: movieData.release_date,
             });
-          } else {
-            console.error(`Failed to fetch movie ${entry.movieId}: ${movieRes.status}`);
           }
         } catch (error) {
           console.error(`Error fetching movie ${entry.movieId}:`, error);
@@ -179,22 +178,24 @@ export default function DiaryPage() {
     days.push(
       <button
         key={day}
-        className={`aspect-square border rounded-lg p-2 transition-all duration-200 ${
+        className={`aspect-square border rounded transition-all duration-200 p-1 md:p-2 ${
           hasEntries
-            ? "bg-[#1db954]/20 border-[#1db954]/50 hover:bg-[#1db954]/30 cursor-pointer"
+            ? "bg-[#00E054]/10 border-[#00E054] hover:bg-[#00E054]/20 cursor-pointer"
             : isToday
-            ? "border-gray-600 bg-gray-800/30"
-            : "border-gray-800"
+            ? "border-[#40BCF4] bg-[#40BCF4]/5"
+            : "border-[#2C3440] hover:border-[#6B7280]"
         }`}
       >
         <div
-          className={`text-xs font-semibold ${isToday ? "text-[#1db954]" : ""}`}
+          className={`text-[10px] md:text-xs font-semibold ${
+            isToday ? "text-[#40BCF4]" : hasEntries ? "text-[#00E054]" : "text-[#9CA3AF]"
+          }`}
         >
           {day}
         </div>
         {hasEntries && (
           <div className="mt-0.5">
-            <div className="text-[10px] font-bold text-[#1db954]">
+            <div className="text-[8px] md:text-[10px] font-bold text-[#00E054]">
               {entries.length}
             </div>
           </div>
@@ -218,80 +219,103 @@ export default function DiaryPage() {
   }, [sortedEntries]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Film className="w-8 h-8 text-[#1db954]" />
-            <h1 className="text-3xl font-bold">My Diary</h1>
+    <div className="min-h-screen bg-[#14181C] text-[#E5E7EB]">
+      <div className="max-w-[1100px] mx-auto px-6 py-8">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6 md:mb-8">
+          <div className="flex items-center gap-2 md:gap-4">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">MY DIARY</h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowCalendar(true)}
-              className="hover:bg-[#1db954] hover:text-white"
+              className="hover:bg-[#1F2428] hover:text-[#00E054] transition-all duration-200 h-8 w-8 md:h-10 md:w-10"
             >
-              <Calendar className="w-5 h-5" />
+              <Calendar className="w-4 h-4 md:w-5 md:h-5" />
             </Button>
           </div>
-          <Link href="/">
-            <Button
-              variant="outline"
-              className="hover:bg-[#1db954] hover:text-white hover:border-[#1db954]"
-            >
-              Back to Home
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2 md:gap-3">
+            <Link href="/watchlist">
+              <Button 
+                className="bg-[#00E054]/10 hover:bg-[#00E054]/20 text-[#00E054] font-semibold hover:text-[#00E054] transition-all duration-200 h-8 md:h-10 px-2 md:px-4"
+              >
+                <Plus className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">ADD DIARY ENTRY</span>
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button 
+                variant="outline"
+                className="border-[#2C3440] hover:border-[#00E054] hover:bg-[#00E054]/10 hover:text-[#00E054] transition-all duration-200 h-8 md:h-10 px-2 md:px-4"
+              >
+                <Home className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">BACK TO HOME</span>
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <Card className="bg-gray-900 border-gray-800 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Film className="w-4 h-4 text-purple-400" />
-              <p className="text-xs text-gray-400">Total</p>
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-4 mb-6 md:mb-10">
+          <Card className="bg-[#1F2428] border-[#2C3440] p-2 md:p-5">
+            <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
+              <p className="text-[9px] md:text-xs text-[#9CA3AF] uppercase tracking-wide font-semibold">Total Films</p>
             </div>
-            <p className="text-2xl font-bold">{diaryEntries.length}</p>
+            <p className="text-xl md:text-3xl font-bold">{diaryEntries.length}</p>
           </Card>
 
-          <Card className="bg-gray-900 border-gray-800 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <p className="text-xs text-gray-400">Avg Rating</p>
+          <Card className="bg-[#1F2428] border-[#2C3440] p-2 md:p-5">
+            <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
+              <p className="text-[9px] md:text-xs text-[#9CA3AF] uppercase tracking-wide font-semibold">This Month</p>
             </div>
-            <p className="text-2xl font-bold">{stats.avgRating.toFixed(1)}</p>
+            <p className="text-xl md:text-3xl font-bold">{stats.thisMonth}</p>
           </Card>
 
-          <Card className="bg-gray-900 border-gray-800 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="w-4 h-4 text-blue-400" />
-              <p className="text-xs text-gray-400">This Month</p>
+          <Card className="bg-[#1F2428] border-[#2C3440] p-2 md:p-5">
+            <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
+              <p className="text-[9px] md:text-xs text-[#9CA3AF] uppercase tracking-wide font-semibold">This Year</p>
             </div>
-            <p className="text-2xl font-bold">{stats.thisMonth}</p>
+            <p className="text-xl md:text-3xl font-bold">{stats.thisYear}</p>
           </Card>
         </div>
 
-        {/* Diary Entries List */}
+        {/* Diary Entries Timeline */}
         {loadingMovies ? (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-sm">Loading movies...</p>
+          <div className="text-center py-16">
+            <div className="inline-block w-8 h-8 border-4 border-[#2C3440] border-t-[#00E054] rounded-full animate-spin mb-4"></div>
+            <p className="text-sm text-[#9CA3AF]">Loading your diary...</p>
           </div>
         ) : sortedEntries.length === 0 ? (
-          <div className="text-center py-16">
-            <Film className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <p className="text-xl text-gray-400">No diary entries yet</p>
-            <p className="text-sm text-gray-500 mt-2">
-              Start watching movies and add them to your diary!
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-24 h-24 rounded-full bg-[#1F2428] border-2 border-[#2C3440] flex items-center justify-center mb-6">
+              <Film className="w-12 h-12 text-[#6B7280]" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Start logging your movie journey.</h2>
+            <p className="text-[#9CA3AF] mb-8 text-center max-w-md">
+              Keep track of every film you watch with ratings, reviews, and personal notes.
             </p>
+            <Link href="/watchlist">
+              <Button 
+                className="bg-[#00E054] hover:bg-[#00E054]/90 text-[#14181C] font-semibold px-8 py-6 text-base transition-all duration-200"
+              >
+                <Plus className="w-5 h-5 md:mr-2" />
+                <span className="hidden md:inline">ADD YOUR FIRST ENTRY</span>
+              </Button>
+            </Link>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {Object.entries(groupedEntries).map(([monthYear, entries]) => (
               <div key={monthYear}>
-                <h2 className="text-xl font-bold mb-4 text-gray-400">
-                  {monthYear}
-                </h2>
-                <div className="space-y-3">
+                <div className="flex items-center gap-4 mb-4 md:mb-6">
+                  <div className="h-px bg-[#2C3440] flex-1"></div>
+                  <h2 className="text-xs md:text-sm font-bold uppercase tracking-wider text-[#6B7280]">
+                    {monthYear}
+                  </h2>
+                  <div className="h-px bg-[#2C3440] flex-1"></div>
+                </div>
+                
+                <div className="space-y-3 md:space-y-4">
                   {entries.map((entry) => {
                     const movie = movieDetails.get(entry.movieId);
                     const watchedDate = new Date(entry.watchedDate);
@@ -299,18 +323,18 @@ export default function DiaryPage() {
                     return (
                       <Card
                         key={entry.id}
-                        className="bg-gray-900 border-gray-800 hover:border-[#1db954] transition-all duration-300"
+                        className="bg-[#1F2428] border-[#2C3440] hover:border-[#00E054] transition-all duration-200 overflow-hidden"
                       >
-                        <div className="flex gap-4 p-4">
+                        <div className="flex gap-1.5 md:gap-3 p-2 md:p-5">
                           {/* Date Badge */}
-                          <div className="flex-shrink-0 text-center bg-gray-800 rounded-lg p-3 w-20">
-                            <div className="text-xs text-gray-400 uppercase">
+                          <div className="flex-shrink-0 text-center bg-[#14181C] border border-[#2C3440] rounded-lg p-1 md:p-3 w-10 md:w-20 h-[60px] md:h-[105px] flex flex-col justify-center">
+                            <div className="text-[7px] md:text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold">
                               {monthNames[watchedDate.getMonth()].slice(0, 3)}
                             </div>
-                            <div className="text-3xl font-bold">
+                            <div className="text-base md:text-2xl font-bold text-[#E5E7EB] my-0.5 md:my-1">
                               {watchedDate.getDate()}
                             </div>
-                            <div className="text-xs text-gray-400">
+                            <div className="text-[7px] md:text-[10px] text-[#6B7280]">
                               {watchedDate.getFullYear()}
                             </div>
                           </div>
@@ -321,33 +345,38 @@ export default function DiaryPage() {
                               <Image
                                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
                                 alt={movie.title}
-                                width={60}
-                                height={90}
-                                className="rounded-lg object-cover"
+                                width={40}
+                                height={60}
+                                className="rounded border border-[#2C3440] object-cover md:w-[70px] md:h-[105px]"
                               />
                             ) : (
-                              <div className="w-15 h-22 bg-gray-700 rounded-lg flex items-center justify-center">
-                                <Film className="w-6 h-6 text-gray-500" />
+                              <div className="w-[40px] h-[60px] md:w-[70px] md:h-[105px] bg-[#14181C] border border-[#2C3440] rounded flex items-center justify-center">
+                                <Film className="w-4 h-4 md:w-8 md:h-8 text-[#6B7280]" />
                               </div>
                             )}
                           </div>
 
                           {/* Movie Details */}
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="font-bold text-lg">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-1">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-xs md:text-lg tracking-tight mb-0.5 leading-tight">
                                   {movie?.title || `Movie #${entry.movieId}`}
+                                  {movie?.release_date && (
+                                    <span className="text-[#6B7280] font-normal ml-1 text-[10px] md:text-sm">
+                                      ({new Date(movie.release_date).getFullYear()})
+                                    </span>
+                                  )}
                                 </h3>
                                 {movie?.director && (
-                                  <p className="text-sm text-gray-400">
+                                  <p className="text-[10px] md:text-sm text-[#9CA3AF] leading-tight">
                                     Directed by {movie.director}
                                   </p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                                 {entry.rewatch && (
-                                  <span className="text-xs bg-purple-500/30 text-purple-300 px-2 py-1 rounded-full">
+                                  <span className="text-[8px] md:text-xs bg-[#40BCF4]/20 text-[#40BCF4] px-1 md:px-2 py-0.5 rounded font-semibold uppercase tracking-wide">
                                     Rewatch
                                   </span>
                                 )}
@@ -355,7 +384,7 @@ export default function DiaryPage() {
                             </div>
 
                             {entry.rating && (
-                              <div className="mb-2">
+                              <div className="mb-1.5 md:mb-3 scale-75 md:scale-100 origin-left">
                                 <StarRating
                                   rating={entry.rating}
                                   readonly
@@ -365,17 +394,17 @@ export default function DiaryPage() {
                             )}
 
                             {entry.review && (
-                              <p className="text-sm text-gray-300 mt-2 line-clamp-2">
+                              <p className="text-[10px] md:text-sm text-[#E5E7EB] leading-snug md:leading-relaxed mb-1.5 md:mb-3 line-clamp-2 md:line-clamp-3">
                                 {entry.review}
                               </p>
                             )}
 
                             {entry.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
+                              <div className="flex flex-wrap gap-1">
                                 {entry.tags.map((tag) => (
                                   <span
                                     key={tag}
-                                    className="text-xs bg-[#1db954]/20 text-[#1db954] px-2 py-1 rounded-full"
+                                    className="text-[8px] md:text-xs bg-[#00E054]/10 text-[#00E054] px-1 md:px-2 py-0.5 rounded border border-[#00E054]/30 font-medium"
                                   >
                                     {tag}
                                   </span>
@@ -383,13 +412,6 @@ export default function DiaryPage() {
                               </div>
                             )}
                           </div>
-
-                          {/* Release Year */}
-                          {movie?.release_date && (
-                            <div className="flex-shrink-0 text-gray-400 text-sm">
-                              {new Date(movie.release_date).getFullYear()}
-                            </div>
-                          )}
                         </div>
                       </Card>
                     );
@@ -402,45 +424,44 @@ export default function DiaryPage() {
 
         {/* Calendar Dialog */}
         <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
-          <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center justify-between">
-                <span>
-                  {monthNames[month]} {year}
-                </span>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={previousMonth}
-                    className="h-8 w-8 p-0"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={nextMonth}
-                    className="h-8 w-8 p-0"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </DialogTitle>
-            </DialogHeader>
+          <DialogContent className="bg-[#1F2428] border-[#2C3440] text-[#E5E7EB] max-w-[320px] md:max-w-sm p-4 md:p-6">
+            {/* Title for accessibility */}
+            <DialogTitle className="text-sm md:text-lg font-bold uppercase tracking-tight text-center mb-3 md:mb-4">
+              {monthNames[month]} {year}
+            </DialogTitle>
 
-            <div className="grid grid-cols-7 gap-1 mb-2">
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-1 md:mb-2">
               {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
                 <div
                   key={i}
-                  className="text-center text-xs font-bold text-gray-500"
+                  className="text-center text-[10px] md:text-xs font-bold text-[#6B7280] uppercase py-1 md:py-2"
                 >
                   {day}
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1">{days}</div>
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-3 md:mb-4">{days}</div>
+
+            {/* Navigation arrows at the bottom */}
+            <div className="flex gap-2 items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={previousMonth}
+                className="h-7 w-7 md:h-9 md:w-9 hover:bg-[#14181C] hover:text-[#00E054] border border-[#2C3440]"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={nextMonth}
+                className="h-7 w-7 md:h-9 md:w-9 hover:bg-[#14181C] hover:text-[#00E054] border border-[#2C3440]"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

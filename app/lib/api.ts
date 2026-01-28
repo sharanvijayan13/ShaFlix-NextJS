@@ -97,19 +97,97 @@ export async function getMovieCredits(movieId: number) {
 
 export async function getMovieVideos(movieId: number) {
   try {
-    const url = `${TMDB_BASE_URL}/movie/${movieId}/videos?language=en-US&api_key=${API_KEY}`;
+    console.log(`[getMovieVideos] Fetching trailer for movie ID: ${movieId}`);
+    
+    // Get movie details to find original language and title
+    const movieDetailsUrl = `${TMDB_BASE_URL}/movie/${movieId}?api_key=${API_KEY}`;
+    const movieRes = await fetch(movieDetailsUrl);
+    
+    if (!movieRes.ok) {
+      console.error("[getMovieVideos] Failed to fetch movie details");
+      return null;
+    }
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch videos");
+    const movieData = await movieRes.json();
+    const movieTitle = movieData.original_title || movieData.title; // Use original title
+    const releaseYear = movieData.release_date?.split('-')[0];
+    const originalLanguage = movieData.original_language; // e.g., 'ta' for Tamil, 'hi' for Hindi
+    
+    console.log(`[getMovieVideos] Movie: ${movieTitle}, Year: ${releaseYear}, Language: ${originalLanguage}`);
+    
+    // Search YouTube directly with original language preference
+    const trailer = await searchYouTubeTrailer(movieTitle, releaseYear, originalLanguage);
+    console.log(`[getMovieVideos] YouTube search result:`, trailer ? "Found" : "Not found");
 
-    const data = await res.json();
-    // Find the first YouTube trailer
-    const trailer = data.results?.find(
-      (video: any) => video.type === "Trailer" && video.site === "YouTube"
-    );
     return trailer;
   } catch (err) {
-    console.error("Failed to fetch videos", err);
+    console.error("[getMovieVideos] Error:", err);
+    return null;
+  }
+}
+
+async function searchYouTubeTrailer(movieTitle: string, releaseYear?: string, originalLanguage?: string) {
+  try {
+    const YOUTUBE_API_KEY = 
+      typeof window === "undefined"
+        ? process.env.YOUTUBE_API_KEY
+        : process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+
+    console.log(`[searchYouTubeTrailer] YouTube API key present:`, !!YOUTUBE_API_KEY);
+
+    if (!YOUTUBE_API_KEY) {
+      console.warn("[searchYouTubeTrailer] YouTube API key not configured");
+      return null;
+    }
+
+    // Build search query with original title and language hint
+    const searchQuery = releaseYear 
+      ? `${movieTitle} ${releaseYear} official trailer`
+      : `${movieTitle} official trailer`;
+
+    console.log(`[searchYouTubeTrailer] Search query: "${searchQuery}"`);
+
+    // Add relevanceLanguage parameter to prefer videos in original language
+    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&maxResults=3&key=${YOUTUBE_API_KEY}`;
+    
+    if (originalLanguage) {
+      url += `&relevanceLanguage=${originalLanguage}`;
+      console.log(`[searchYouTubeTrailer] Filtering for language: ${originalLanguage}`);
+    }
+    
+    const res = await fetch(url);
+    
+    console.log(`[searchYouTubeTrailer] YouTube API response status:`, res.status);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("[searchYouTubeTrailer] YouTube API error:", res.status, errorText);
+      return null;
+    }
+
+    const data = await res.json();
+    
+    console.log(`[searchYouTubeTrailer] YouTube results count:`, data.items?.length || 0);
+    
+    if (data.items && data.items.length > 0) {
+      // Find the first video that looks like an official trailer
+      const trailer = data.items.find((item: any) => {
+        const title = item.snippet.title.toLowerCase();
+        return title.includes('trailer') || title.includes('official');
+      }) || data.items[0]; // Fallback to first result
+      
+      console.log(`[searchYouTubeTrailer] Found video:`, trailer.snippet.title);
+      return {
+        key: trailer.id.videoId,
+        site: "YouTube",
+        type: "Trailer",
+        name: trailer.snippet.title,
+      };
+    }
+
+    return null;
+  } catch (err) {
+    console.error("[searchYouTubeTrailer] Error:", err);
     return null;
   }
 }

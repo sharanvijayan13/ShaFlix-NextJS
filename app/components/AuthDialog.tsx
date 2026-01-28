@@ -17,11 +17,13 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
       if (mode === "signin") {
@@ -32,8 +34,19 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       onOpenChange(false);
       setEmail("");
       setPassword("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Auth error:", error);
+      // Provide user-friendly error messages
+      const errorMessage = error?.code === "auth/invalid-credential" || error?.code === "auth/wrong-password"
+        ? "Invalid email or password."
+        : error?.code === "auth/user-not-found"
+        ? "No account found with this email."
+        : error?.code === "auth/email-already-in-use"
+        ? "An account with this email already exists."
+        : error?.code === "auth/weak-password"
+        ? "Password should be at least 6 characters."
+        : error?.message || "Authentication failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -41,11 +54,16 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    setError("");
     try {
       await signInWithGoogle();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google sign in error:", error);
+      // Don't show error if user simply closed the popup
+      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
+        setError(error?.message || "Google sign-in failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -55,14 +73,22 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
             {mode === "signin" ? "Sign In" : "Create Account"}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md border border-destructive/20">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -70,11 +96,15 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="h-11"
+              disabled={loading}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-medium">
+              Password
+            </Label>
             <Input
               id="password"
               type="password"
@@ -83,21 +113,28 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              className="h-11"
+              disabled={loading}
             />
+            {mode === "signup" && (
+              <p className="text-xs text-muted-foreground">
+                Password must be at least 6 characters
+              </p>
+            )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full h-11 mt-6" disabled={loading}>
             {loading ? "Loading..." : mode === "signin" ? "Sign In" : "Sign Up"}
           </Button>
         </form>
 
-        <div className="relative">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
+              OR CONTINUE WITH
             </span>
           </div>
         </div>
@@ -105,11 +142,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         <Button
           type="button"
           variant="outline"
-          className="w-full"
+          className="w-full h-11 gap-2"
           onClick={handleGoogleSignIn}
           disabled={loading}
         >
-          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -127,17 +164,21 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               fill="#EA4335"
             />
           </svg>
-          Google
+          <span>Google</span>
         </Button>
 
-        <div className="text-center text-sm">
+        <div className="text-center text-sm text-muted-foreground mt-6">
           {mode === "signin" ? (
             <>
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <button
                 type="button"
-                className="text-primary underline"
-                onClick={() => setMode("signup")}
+                className="text-primary hover:underline font-medium"
+                onClick={() => {
+                  setMode("signup");
+                  setError("");
+                }}
+                disabled={loading}
               >
                 Sign up
               </button>
@@ -147,8 +188,12 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               Already have an account?{" "}
               <button
                 type="button"
-                className="text-primary underline"
-                onClick={() => setMode("signin")}
+                className="text-primary hover:underline font-medium"
+                onClick={() => {
+                  setMode("signin");
+                  setError("");
+                }}
+                disabled={loading}
               >
                 Sign in
               </button>

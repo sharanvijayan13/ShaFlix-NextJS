@@ -32,7 +32,6 @@ export function useAuthGuard() {
           : "Sign in to add favorites or watchlist";
         
         toast.info(message, {
-          description: "Create an account or sign in to unlock all features",
           action: {
             label: "Sign In",
             onClick: () => setShowAuthDialog(true),

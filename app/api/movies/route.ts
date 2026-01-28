@@ -83,19 +83,28 @@ export async function GET(req: NextRequest) {
     // Popular movies
     url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&page=${page}`;
   } else if (mood.toLowerCase() === "sad") {
-    // Sad = drama/emotional
-    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=18&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
+    // Sad = drama/emotional - high-rated dramas
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=18&sort_by=vote_average.desc&vote_count.gte=500&vote_average.gte=7.0&page=${page}`;
   } else if (mood.toLowerCase() === "disturbing") {
-    // Disturbing = horror/thriller/psychological
-    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=27,53&sort_by=vote_average.desc&vote_count.gte=20&with_original_language=en&page=${page}`;
+    // Disturbing = horror - sort by vote_count to get most discussed/famous horror films (includes controversial)
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=27&sort_by=vote_count.desc&vote_count.gte=50&vote_average.gte=5.0&page=${page}`;
+  } else if (mood.toLowerCase() === "scared") {
+    // Scared = horror - popular scary movies
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=27&sort_by=popularity.desc&vote_count.gte=300&vote_average.gte=6.0&page=${page}`;
+  } else if (mood.toLowerCase() === "thrilled") {
+    // Thrilled = thriller - high-rated suspenseful movies
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=53&sort_by=vote_average.desc&vote_count.gte=500&vote_average.gte=6.5&page=${page}`;
+  } else if (mood.toLowerCase() === "thoughtful") {
+    // Thoughtful = drama - intellectual/thought-provoking
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=18&sort_by=vote_average.desc&vote_count.gte=300&vote_average.gte=7.5&page=${page}`;
   } else {
-    // Genre-mapped moods
+    // Genre-mapped moods - balanced popularity and quality
     const genreId = moodGenreMap[mood.toLowerCase()];
     if (!genreId) {
       return NextResponse.json({ error: "Invalid mood selected" }, { status: 400 });
     }
 
-    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=100&with_original_language=en&page=${page}`;
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}&sort_by=popularity.desc&vote_count.gte=200&vote_average.gte=6.0&page=${page}`;
   }
 
   try {

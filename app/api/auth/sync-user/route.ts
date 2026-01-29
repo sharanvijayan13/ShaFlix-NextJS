@@ -4,6 +4,7 @@ import { db } from "@/app/db";
 import { users, favorites, watchlist, watched, diaryEntries, customLists, listMovies } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { ensureMoviesExist } from "@/app/lib/movie-cache";
+import { initializeUserStats, updateUserStats } from "@/app/lib/user-stats";
 import { Movie, DiaryEntry, CustomList } from "@/app/types";
 
 interface SyncData {
@@ -211,6 +212,11 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Sync completed successfully");
+    
+    // Initialize and update user stats after sync
+    await initializeUserStats(auth.userId);
+    await updateUserStats(auth.userId);
+    
     return Response.json({ 
       success: true, 
       message: "Data synced successfully" 

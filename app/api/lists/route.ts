@@ -4,6 +4,7 @@ import { db } from "@/app/db";
 import { customLists, listMovies } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ensureMovieExists } from "@/app/lib/movie-cache";
+import { updateUserStats, updateUserActivity } from "@/app/lib/user-stats";
 import { Movie } from "@/app/types";
 
 /**
@@ -32,6 +33,8 @@ export async function GET(request: NextRequest) {
       name: list.name,
       description: list.description,
       isPublic: list.isPublic,
+      viewCount: list.viewCount,
+      likeCount: list.likeCount,
       movieIds: list.listMovies.map(lm => lm.movieId),
       movies: list.listMovies.map(lm => ({
         id: lm.movie.id,
@@ -41,6 +44,9 @@ export async function GET(request: NextRequest) {
         overview: lm.movie.overview,
         vote_average: lm.movie.voteAverage,
         runtime: lm.movie.runtime,
+        director_name: lm.movie.directorName,
+        primary_cast: lm.movie.primaryCast,
+        genres: lm.movie.genres,
       })),
       createdAt: list.createdAt?.toISOString(),
       updatedAt: list.updatedAt?.toISOString(),
@@ -76,6 +82,12 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
+    // Update user activity and stats
+    await Promise.all([
+      updateUserActivity(auth.userId, 'list'),
+      updateUserStats(auth.userId),
+    ]);
+
     return Response.json({ 
       success: true, 
       list: {
@@ -83,6 +95,8 @@ export async function POST(request: NextRequest) {
         name: list.name,
         description: list.description,
         isPublic: list.isPublic,
+        viewCount: list.viewCount,
+        likeCount: list.likeCount,
         movieIds: [],
         createdAt: list.createdAt?.toISOString(),
         updatedAt: list.updatedAt?.toISOString(),
@@ -179,6 +193,9 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // Update user activity
+    await updateUserActivity(auth.userId, 'list');
+
     return Response.json({ success: true });
 
   } catch (error) {
@@ -208,6 +225,9 @@ export async function DELETE(request: NextRequest) {
           eq(customLists.userId, auth.userId)
         )
       );
+
+    // Update user stats
+    await updateUserStats(auth.userId);
 
     return Response.json({ success: true });
 

@@ -4,6 +4,7 @@ import { db } from "@/app/db";
 import { favorites } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ensureMovieExists } from "@/app/lib/movie-cache";
+import { updateUserStats } from "@/app/lib/user-stats";
 import { Movie } from "@/app/types";
 
 /**
@@ -39,6 +40,9 @@ export async function GET(request: NextRequest) {
       overview: fav.movie.overview,
       vote_average: fav.movie.voteAverage,
       runtime: fav.movie.runtime,
+      director_name: fav.movie.directorName,
+      primary_cast: fav.movie.primaryCast,
+      genres: fav.movie.genres,
       addedAt: fav.createdAt,
       user: {
         email: fav.user.email,
@@ -77,6 +81,9 @@ export async function POST(request: NextRequest) {
         })
         .onConflictDoNothing();
 
+      // Update user stats
+      await updateUserStats(auth.userId);
+
       return Response.json({ success: true, action: "added" });
 
     } else if (action === "remove") {
@@ -88,6 +95,9 @@ export async function POST(request: NextRequest) {
             eq(favorites.movieId, movie.id)
           )
         );
+
+      // Update user stats
+      await updateUserStats(auth.userId);
 
       return Response.json({ success: true, action: "removed" });
     }

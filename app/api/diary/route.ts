@@ -3,12 +3,13 @@ import { authenticateRequest, createAuthError } from "@/app/lib/auth-middleware"
 import { db } from "@/app/db";
 import { diaryEntries } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
-import { ensureMovieExists } from "@/app/lib/movie-cache";
+import { ensureMovieExists, getCachedMovieWithExtendedData } from "@/app/lib/movie-cache";
+import { updateUserStats, updateUserActivity } from "@/app/lib/user-stats";
 import { Movie } from "@/app/types";
 
 /**
  * GET /api/diary
- * Get user's diary entries
+ * Get user's diary entries with cached director data
  */
 export async function GET(request: NextRequest) {
   try {
@@ -33,6 +34,10 @@ export async function GET(request: NextRequest) {
         overview: entry.movie.overview,
         vote_average: entry.movie.voteAverage,
         runtime: entry.movie.runtime,
+        // Include cached director and cast data
+        director_name: entry.movie.directorName,
+        primary_cast: entry.movie.primaryCast,
+        genres: entry.movie.genres,
       },
       watchedDate: entry.watchedDate,
       rating: entry.rating,
@@ -40,6 +45,7 @@ export async function GET(request: NextRequest) {
       tags: entry.tags,
       rewatch: entry.rewatch,
       createdAt: entry.createdAt?.toISOString(),
+      updatedAt: entry.updatedAt?.toISOString(),
     }));
 
     return Response.json({ entries: formattedEntries });
@@ -52,7 +58,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/diary
- * Create a new diary entry
+ * Create a new diary entry with extended movie data
  */
 export async function POST(request: NextRequest) {
   try {
@@ -73,8 +79,8 @@ export async function POST(request: NextRequest) {
       rewatch: boolean;
     } = await request.json();
 
-    // Ensure movie exists
-    await ensureMovieExists(movie);
+    // Ensure movie exists with extended data (director, cast, genres)
+    await ensureMovieExists(movie, true);
 
     // Create diary entry
     const [entry] = await db.insert(diaryEntries)
@@ -88,6 +94,12 @@ export async function POST(request: NextRequest) {
         rewatch,
       })
       .returning();
+
+    // Update user activity and stats
+    await Promise.all([
+      updateUserActivity(auth.userId, 'diary'),
+      updateUserStats(auth.userId),
+    ]);
 
     return Response.json({ 
       success: true, 
@@ -104,6 +116,55 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to create diary entry";
+    return createAuthError(errorMessage, 500);
+  }
+}
+
+/**
+ * PATCH /api/diary
+ * Update an existing diary entry
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const auth = await authenticateRequest(request);
+    const { 
+      entryId,
+      rating, 
+      review, 
+      tags,
+    }: { 
+      entryId: string;
+      rating?: number; 
+      review?: string; 
+      tags?: string[]; 
+    } = await request.json();
+
+    if (!entryId) {
+      return createAuthError("Entry ID is required", 400);
+    }
+
+    // Update diary entry
+    await db.update(diaryEntries)
+      .set({
+        ...(rating !== undefined && { rating }),
+        ...(review !== undefined && { review }),
+        ...(tags !== undefined && { tags }),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(diaryEntries.id, entryId),
+          eq(diaryEntries.userId, auth.userId)
+        )
+      );
+
+    // Update user stats (in case rating changed)
+    await updateUserStats(auth.userId);
+
+    return Response.json({ success: true });
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update diary entry";
     return createAuthError(errorMessage, 500);
   }
 }
@@ -129,6 +190,9 @@ export async function DELETE(request: NextRequest) {
           eq(diaryEntries.userId, auth.userId)
         )
       );
+
+    // Update user stats
+    await updateUserStats(auth.userId);
 
     return Response.json({ success: true });
 

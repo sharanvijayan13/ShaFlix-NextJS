@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { authenticateRequest, createAuthError } from "@/app/lib/auth-middleware";
 import { db } from "@/app/db";
-import { users, favorites, watched, diaryEntries, customLists } from "@/app/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { users } from "@/app/db/schema";
+import { eq } from "drizzle-orm";
+import { getUserStats, updateUserStats } from "@/app/lib/user-stats";
 
 /**
  * GET /api/profile
@@ -21,25 +22,11 @@ export async function GET(request: NextRequest) {
       return createAuthError("User not found", 404);
     }
 
-    // Get stats
-    const [favCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(favorites)
-      .where(eq(favorites.userId, auth.userId));
+    // Get stats from denormalized table (much faster than COUNT queries)
+    const stats = await getUserStats(auth.userId);
 
-    const [watchedCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(watched)
-      .where(eq(watched.userId, auth.userId));
-
-    const [diaryCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(diaryEntries)
-      .where(eq(diaryEntries.userId, auth.userId));
-
-    const [listsCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(customLists)
-      .where(eq(customLists.userId, auth.userId));
-
-    // Calculate hours watched (assuming average 2 hours per movie)
-    const hoursWatched = Math.round((watchedCount.count * 2) * 10) / 10;
+    // Calculate hours watched from total runtime
+    const hoursWatched = stats ? Math.round((stats.totalRuntimeMinutes / 60) * 10) / 10 : 0;
 
     return Response.json({
       profile: {
@@ -49,11 +36,12 @@ export async function GET(request: NextRequest) {
         avatarUrl: user.avatarUrl || "",
         email: user.email,
         stats: {
-          moviesWatched: watchedCount.count,
-          diaryEntries: diaryCount.count,
-          favorites: favCount.count,
-          lists: listsCount.count,
+          moviesWatched: stats?.moviesWatched || 0,
+          diaryEntries: stats?.diaryEntriesCount || 0,
+          favorites: stats?.favoritesCount || 0,
+          lists: stats?.listsCount || 0,
           hoursWatched,
+          avgRating: stats?.avgRating || null,
         },
       },
     });

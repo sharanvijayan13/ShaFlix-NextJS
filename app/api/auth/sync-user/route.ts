@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
           }
           return null;
         });
-        
+
         const movieDetails = (await Promise.all(movieDetailsPromises)).filter(Boolean) as Movie[];
         if (movieDetails.length > 0) {
           await ensureMoviesExist(movieDetails);
@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
           .values(data.favorites.map(movie => ({
             userId: auth.userId,
             movieId: movie.id,
+            title: movie.title,
           })))
           .onConflictDoNothing();
         console.log("Synced", data.favorites.length, "favorites");
@@ -212,14 +213,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Sync completed successfully");
-    
+
     // Initialize and update user stats after sync
     await initializeUserStats(auth.userId);
     await updateUserStats(auth.userId);
-    
-    return Response.json({ 
-      success: true, 
-      message: "Data synced successfully" 
+
+    return Response.json({
+      success: true,
+      message: "Data synced successfully"
     });
 
   } catch (error) {

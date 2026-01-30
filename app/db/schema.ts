@@ -62,7 +62,7 @@ export const userStats = pgTable("user_stats", {
 export const favorites = pgTable("favorites", {
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   movieId: integer("movie_id").notNull().references(() => movies.id, { onDelete: "cascade" }),
-  movieName: varchar("movie_name", { length: 500 }),
+  title: varchar("title", { length: 500 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   pk: primaryKey({ columns: [table.userId, table.movieId] }),

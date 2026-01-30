@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
         .values({
           userId: auth.userId,
           movieId: movie.id,
+          movieName: movie.title,
         })
         .onConflictDoNothing();
 

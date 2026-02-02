@@ -61,11 +61,10 @@ function Pagination({
       {pages.map((p) => (
         <button
           key={p}
-          className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${
-            p === page
+          className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${p === page
               ? "bg-white text-green-600 border-white"
               : "bg-green-600 text-white hover:bg-green-700"
-          }`}
+            }`}
           onClick={() => setPage(p)}
         >
           {p}
@@ -101,14 +100,14 @@ export default function HomeContent({
   const { userProfile, updateProfile } = useMovieContext();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  
+
   // Extract username from email if profile username is empty
   const getDisplayName = () => {
     if (userProfile.username) return userProfile.username;
     if (user?.email) return user.email.split('@')[0];
     return user?.displayName || "User";
   };
-  
+
   const [editForm, setEditForm] = useState({
     ...userProfile,
     username: getDisplayName()
@@ -123,16 +122,19 @@ export default function HomeContent({
   const [search, setSearch] = useState(initialSearch);
   const [error, setError] = useState<string | null>(null);
 
+  // 1. Sync state FROM URL params (e.g., when user clicks Back/Forward or initial load)
   useEffect(() => {
     const moodParam = searchParams.get("mood") || "popular";
     const queryParam = searchParams.get("query") || "";
     const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
-    setMood(moodParam);
-    setSearch(queryParam);
-    setPage(pageParam);
+    // Only update state if it doesn't match the current state to avoid loops
+    setMood(prev => prev !== moodParam ? moodParam : prev);
+    setSearch(prev => prev !== queryParam ? queryParam : prev);
+    setPage(prev => prev !== pageParam ? pageParam : prev);
   }, [searchParams]);
 
+  // 2. Data fetching effect - depends on core state
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
@@ -143,7 +145,7 @@ export default function HomeContent({
           page,
           search
         );
-        
+
         setMovies(results);
         setTotalPages(total_pages);
       } catch (err) {
@@ -154,14 +156,23 @@ export default function HomeContent({
       }
     };
     getMovies();
+  }, [mood, page, search]);
 
+  // 3. Sync state TO URL params
+  useEffect(() => {
     const params = new URLSearchParams();
     if (mood && mood !== "popular") params.set("mood", mood);
     if (search) params.set("query", search);
     if (page > 1) params.set("page", page.toString());
 
-    router.replace(`/?${params.toString()}`);
-  }, [mood, page, search, router]);
+    const newQueryString = params.toString();
+    const currentQueryString = searchParams.toString();
+
+    // Only update the URL if it has actually changed to avoid feedback loops
+    if (newQueryString !== currentQueryString) {
+      router.replace(`/?${newQueryString}`, { scroll: false });
+    }
+  }, [mood, page, search, router, searchParams]);
 
   useEffect(() => {
     setPage(1);
@@ -197,16 +208,16 @@ export default function HomeContent({
         <h1 className="text-3xl font-bold">
           Shaflix
         </h1>
-        
+
         {/* Hamburger on mobile - same row */}
         <div className="md:hidden">
           <Navbar />
         </div>
-        
+
         {/* Sign In button or User Avatar at top right - Desktop only */}
         {isFirebaseConfigured && (
           !user ? (
-            <Button 
+            <Button
               onClick={() => setShowAuthDialog(true)}
               className="hidden md:block bg-[#1db954] hover:bg-[#1ed760] text-white px-6"
             >
@@ -218,64 +229,64 @@ export default function HomeContent({
                 Hi, {getDisplayName()}!
               </span>
               <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0 hover:bg-transparent group">
-                  <div className="relative">
-                    {/* Glow effect on hover */}
-                    <div className="absolute inset-0 rounded-full bg-[#00E054] opacity-0 group-hover:opacity-30 blur-md transition-all duration-500"></div>
-                    
-                    {/* Avatar with border */}
-                    <Avatar className="relative h-11 w-11 border-[3px] border-[#2C3440] group-hover:border-[#00E054] group-hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg">
-                      <AvatarImage src={userProfile.avatarUrl || user.photoURL || ""} alt={user.email || ""} className="object-cover" />
-                      <AvatarFallback className="bg-[#1F2428] text-[#00E054] font-bold text-lg border-2 border-[#00E054]">
-                        {getDisplayName()[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    {/* Small accent dot with pulse animation for mobile */}
-                    <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#00E054] rounded-full border-[2.5px] border-black group-hover:scale-110 transition-transform duration-300">
-                      <div className="absolute inset-0 rounded-full bg-[#00E054] animate-ping opacity-75"></div>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0 hover:bg-transparent group">
+                    <div className="relative">
+                      {/* Glow effect on hover */}
+                      <div className="absolute inset-0 rounded-full bg-[#00E054] opacity-0 group-hover:opacity-30 blur-md transition-all duration-500"></div>
+
+                      {/* Avatar with border */}
+                      <Avatar className="relative h-11 w-11 border-[3px] border-[#2C3440] group-hover:border-[#00E054] group-hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg">
+                        <AvatarImage src={userProfile.avatarUrl || user.photoURL || ""} alt={user.email || ""} className="object-cover" />
+                        <AvatarFallback className="bg-[#1F2428] text-[#00E054] font-bold text-lg border-2 border-[#00E054]">
+                          {getDisplayName()[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Small accent dot with pulse animation for mobile */}
+                      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#00E054] rounded-full border-[2.5px] border-black group-hover:scale-110 transition-transform duration-300">
+                        <div className="absolute inset-0 rounded-full bg-[#00E054] animate-ping opacity-75"></div>
+                      </div>
                     </div>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">{getDisplayName()}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="cursor-pointer">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/watched" className="cursor-pointer">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Watched
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/diary" className="cursor-pointer">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Diary
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/lists" className="cursor-pointer">
-                    <List className="mr-2 h-4 w-4" />
-                    Lists
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />                
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{getDisplayName()}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="cursor-pointer">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/watched" className="cursor-pointer">
+                      <Eye className="mr-2 h-4 w-4" />
+                      Watched
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/diary" className="cursor-pointer">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Diary
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/lists" className="cursor-pointer">
+                      <List className="mr-2 h-4 w-4" />
+                      Lists
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )
         )}
@@ -285,7 +296,7 @@ export default function HomeContent({
       <div className="hidden md:block">
         <Navbar />
       </div>
-      
+
       <SearchBar value={search} onChange={setSearch} />
       <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
         <MoodSelector mood={mood} setMood={setMood} />
@@ -358,7 +369,7 @@ export default function HomeContent({
                       {editForm.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <label 
+                  <label
                     htmlFor="profile-pic-upload"
                     className="absolute bottom-0 right-0 h-8 w-8 bg-[#00E054] hover:bg-[#00E054]/90 rounded-full flex items-center justify-center cursor-pointer transition-colors border-2 border-[#1F2428]"
                   >
@@ -411,7 +422,7 @@ export default function HomeContent({
               >
                 CANCEL
               </Button>
-              <Button 
+              <Button
                 onClick={handleSaveProfile}
                 className="bg-[#00E054] hover:bg-[#00E054]/90 text-[#14181C] font-semibold"
               >

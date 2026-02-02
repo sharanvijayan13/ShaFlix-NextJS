@@ -67,7 +67,7 @@ interface MovieProviderProps {
 export const MovieProvider = ({ children }: MovieProviderProps) => {
   const { user } = useAuth();
   const api = useApi();
-  
+
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
   const [watched, setWatched] = useState<Movie[]>([]);
@@ -92,13 +92,13 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   // Load data from API when user is authenticated
   useEffect(() => {
     if (!user) {
-      // Reset state when user logs out
-      setFavorites([]);
-      setWatchlist([]);
-      setWatched([]);
-      setDiaryEntries([]);
-      setCustomLists([]);
-      setUserProfile({
+      // Reset state when user logs out - use functional updates to prevent duplicate objects and loops
+      setFavorites(prev => prev.length > 0 ? [] : prev);
+      setWatchlist(prev => prev.length > 0 ? [] : prev);
+      setWatched(prev => prev.length > 0 ? [] : prev);
+      setDiaryEntries(prev => prev.length > 0 ? [] : prev);
+      setCustomLists(prev => prev.length > 0 ? [] : prev);
+      setUserProfile(prev => (prev.username || prev.handle || prev.bio || prev.avatarUrl) ? {
         username: "",
         handle: "",
         bio: "",
@@ -110,7 +110,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
           lists: 0,
           hoursWatched: 0,
         },
-      });
+      } : prev);
       return;
     }
 
@@ -131,13 +131,15 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
           api.getWatched().catch(() => ({ watched: [] })),
           api.getDiaryEntries().catch(() => ({ diaryEntries: [] })),
           api.getLists().catch(() => ({ lists: [] })),
-          api.getProfile().catch(() => ({ profile: {
-            username: "",
-            handle: "",
-            bio: "",
-            avatarUrl: "",
-            stats: { moviesWatched: 0, diaryEntries: 0, favorites: 0, lists: 0, hoursWatched: 0 }
-          }})),
+          api.getProfile().catch(() => ({
+            profile: {
+              username: "",
+              handle: "",
+              bio: "",
+              avatarUrl: "",
+              stats: { moviesWatched: 0, diaryEntries: 0, favorites: 0, lists: 0, hoursWatched: 0 }
+            }
+          })),
         ]);
 
         setFavorites(favoritesData.favorites || []);
@@ -173,7 +175,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
     if (storedFavs) setFavorites(JSON.parse(storedFavs));
     if (storedWatchlist) setWatchlist(JSON.parse(storedWatchlist));
     if (storedWatched) setWatched(JSON.parse(storedWatched));
-    
+
     // Migrate old diary format (object) to new format (array)
     if (storedDiary) {
       const parsed = JSON.parse(storedDiary);
@@ -195,7 +197,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         setDiaryEntries(migratedEntries);
       }
     }
-    
+
     if (storedReviews) setReviews(JSON.parse(storedReviews));
     if (storedLists) setCustomLists(JSON.parse(storedLists));
     if (storedProfile) setUserProfile(JSON.parse(storedProfile));
@@ -245,7 +247,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const addToFavorites = useCallback(async (movie: Movie) => {
     if (!user) return;
-    
+
     try {
       await api.toggleFavorite(movie, "add");
       setFavorites((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
@@ -258,10 +260,10 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const removeFromFavorites = useCallback(async (movieId: number) => {
     if (!user) return;
-    
+
     const movie = favorites.find(m => m.id === movieId);
     if (!movie) return;
-    
+
     try {
       await api.toggleFavorite(movie, "remove");
       setFavorites((prev) => prev.filter((movie) => movie.id !== movieId));
@@ -276,7 +278,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const addToWatchlist = useCallback(async (movie: Movie) => {
     if (!user) return;
-    
+
     try {
       await api.toggleWatchlist(movie, "add");
       setWatchlist((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
@@ -289,10 +291,10 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const removeFromWatchlist = useCallback(async (movieId: number) => {
     if (!user) return;
-    
+
     const movie = watchlist.find(m => m.id === movieId);
     if (!movie) return;
-    
+
     try {
       await api.toggleWatchlist(movie, "remove");
       setWatchlist((prev) => prev.filter((movie) => movie.id !== movieId));
@@ -307,7 +309,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const addToWatched = useCallback(async (movie: Movie) => {
     if (!user) return;
-    
+
     try {
       await api.toggleWatched(movie, "add");
       setWatched((prev) => (prev.some((m) => m.id === movie.id) ? prev : [...prev, movie]));
@@ -320,10 +322,10 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const removeFromWatched = useCallback(async (movieId: number) => {
     if (!user) return;
-    
+
     const movie = watched.find(m => m.id === movieId);
     if (!movie) return;
-    
+
     try {
       await api.toggleWatched(movie, "remove");
       setWatched((prev) => prev.filter((movie) => movie.id !== movieId));
@@ -339,14 +341,14 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   // Diary Entry Methods
   const addDiaryEntry = useCallback(async (entry: Omit<DiaryEntry, "id">) => {
     if (!user) return;
-    
+
     try {
       // Get movie details first
       const movieResponse = await fetch(
         `https://api.themoviedb.org/3/movie/${entry.movieId}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`
       );
       const movie = await movieResponse.json();
-      
+
       await api.createDiaryEntry({
         movie,
         watchedDate: entry.watchedDate,
@@ -355,7 +357,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         tags: entry.tags,
         rewatch: entry.rewatch,
       });
-      
+
       const newEntry: DiaryEntry = {
         ...entry,
         id: `diary-${Date.now()}-${Math.random()}`,
@@ -374,7 +376,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const updateDiaryEntry = useCallback(async (id: string, entry: Partial<DiaryEntry>) => {
     if (!user) return;
-    
+
     // Note: The API doesn't have an update endpoint, so we'll just update locally for now
     // You might want to add an update endpoint to your API
     setDiaryEntries((prev) =>
@@ -384,7 +386,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const removeDiaryEntry = useCallback(async (id: string) => {
     if (!user) return;
-    
+
     try {
       await api.deleteDiaryEntry(id);
       setDiaryEntries((prev) => prev.filter((e) => e.id !== id));
@@ -437,19 +439,19 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   // Custom List Methods
   const createList = useCallback(async (list: Omit<CustomList, "id" | "createdAt" | "updatedAt">) => {
     if (!user) return;
-    
+
     try {
       const response = await api.createList({
         name: list.name,
         description: list.description,
         isPublic: list.isPublic,
       });
-      
+
       const newList: CustomList = {
         ...response.list,
         movieIds: list.movieIds,
       };
-      
+
       // Add movies to the list if any
       if (list.movieIds.length > 0) {
         for (const movieId of list.movieIds) {
@@ -459,7 +461,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
               `https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`
             );
             const movie = await movieResponse.json();
-            
+
             await api.updateList({
               listId: newList.id,
               addMovie: movie,
@@ -469,7 +471,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
           }
         }
       }
-      
+
       setCustomLists((prev) => [...prev, newList]);
     } catch (error) {
       console.error("Failed to create list:", error);
@@ -486,7 +488,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const updateList = useCallback(async (id: string, list: Partial<CustomList>) => {
     if (!user) return;
-    
+
     try {
       await api.updateList({
         listId: id,
@@ -494,7 +496,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         description: list.description,
         isPublic: list.isPublic,
       });
-      
+
       setCustomLists((prev) =>
         prev.map((l) =>
           l.id === id ? { ...l, ...list, updatedAt: new Date().toISOString() } : l
@@ -513,7 +515,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const deleteList = useCallback(async (id: string) => {
     if (!user) return;
-    
+
     try {
       await api.deleteList(id);
       setCustomLists((prev) => prev.filter((l) => l.id !== id));
@@ -526,19 +528,19 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const addMovieToList = useCallback(async (listId: string, movieId: number) => {
     if (!user) return;
-    
+
     try {
       // Get movie details first
       const movieResponse = await fetch(
         `https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`
       );
       const movie = await movieResponse.json();
-      
+
       await api.updateList({
         listId,
         addMovie: movie,
       });
-      
+
       setCustomLists((prev) =>
         prev.map((l) =>
           l.id === listId && !l.movieIds.includes(movieId)
@@ -561,13 +563,13 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const removeMovieFromList = useCallback(async (listId: string, movieId: number) => {
     if (!user) return;
-    
+
     try {
       await api.updateList({
         listId,
         removeMovie: movieId,
       });
-      
+
       setCustomLists((prev) =>
         prev.map((l) =>
           l.id === listId
@@ -590,13 +592,13 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
 
   const reorderListMovies = useCallback(async (listId: string, movieIds: number[]) => {
     if (!user) return;
-    
+
     try {
       await api.updateList({
         listId,
         reorderMovies: movieIds,
       });
-      
+
       setCustomLists((prev) =>
         prev.map((l) =>
           l.id === listId ? { ...l, movieIds, updatedAt: new Date().toISOString() } : l
@@ -616,7 +618,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   // Profile Methods
   const updateProfile = useCallback(async (profile: Partial<UserProfile>) => {
     if (!user) return;
-    
+
     try {
       await api.updateProfile({
         username: profile.username,
@@ -624,7 +626,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         bio: profile.bio,
         avatarUrl: profile.avatarUrl,
       });
-      
+
       setUserProfile((prev) => ({ ...prev, ...profile }));
     } catch (error) {
       console.error("Failed to update profile:", error);

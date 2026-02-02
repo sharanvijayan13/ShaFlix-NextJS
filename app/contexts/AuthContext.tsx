@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
-import { 
-  User, 
-  signInWithEmailAndPassword, 
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
+import {
+  User,
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -68,11 +68,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
 
       // Only sync if there's data to sync
-      const hasData = localData.favorites.length > 0 || 
-                      localData.watchlist.length > 0 || 
-                      localData.watched.length > 0 ||
-                      localData.diaryEntries.length > 0 ||
-                      localData.customLists.length > 0;
+      const hasData = localData.favorites.length > 0 ||
+        localData.watchlist.length > 0 ||
+        localData.watched.length > 0 ||
+        localData.diaryEntries.length > 0 ||
+        localData.customLists.length > 0;
 
       if (hasData) {
         const response = await fetch("/api/auth/sync-user", {
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           localStorage.removeItem("watched");
           localStorage.removeItem("diaryEntries");
           localStorage.removeItem("customLists");
-          
+
           toast.success("Your data has been synced!");
         } else {
           const errorText = await response.text();
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Don't show error to user, just log it
         }
       }
-      
+
       // Mark as synced regardless to prevent retry loops
       setSynced(true);
     } catch (error) {
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [isFirebaseConfigured, syncLocalStorageData]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     if (!isFirebaseConfigured || !auth) {
       toast.error("Firebase is not configured");
       throw new Error("Firebase not configured");
@@ -141,9 +141,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.error(errorMessage);
       throw error;
     }
-  };
+  }, [isFirebaseConfigured]);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     if (!isFirebaseConfigured || !auth) {
       toast.error("Firebase is not configured");
       throw new Error("Firebase not configured");
@@ -156,9 +156,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.error(errorMessage);
       throw error;
     }
-  };
+  }, [isFirebaseConfigured]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     if (!isFirebaseConfigured || !auth || !googleProvider) {
       toast.error("Firebase is not configured");
       throw new Error("Firebase not configured");
@@ -175,9 +175,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       throw error;
     }
-  };
+  }, [isFirebaseConfigured]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     if (!isFirebaseConfigured || !auth) {
       toast.error("Firebase is not configured");
       throw new Error("Firebase not configured");
@@ -191,23 +191,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.error(errorMessage);
       throw error;
     }
-  };
+  }, [isFirebaseConfigured]);
 
-  const getIdToken = async () => {
+  const getIdToken = useCallback(async () => {
     if (!user) return null;
     return await user.getIdToken();
-  };
+  }, [user]);
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    getIdToken,
+  }), [user, loading, signIn, signUp, signInWithGoogle, signOut, getIdToken]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      signIn,
-      signUp,
-      signInWithGoogle,
-      signOut,
-      getIdToken,
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -189,7 +189,7 @@ export default function Home() {
       <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">
         Favorites
       </h2>
-      <div className="flex flex-col items-center sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-8xl w-full py-1 mx-auto items-start">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 max-w-8xl w-full py-1 mx-auto">
         {favorites.length === 0 ? (
           <EmptyState
             icon={Heart}

@@ -175,7 +175,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
   return (
     <>
       <Card
-        className="bg-card border shadow-md flex flex-col w-full max-w-[256px] overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-[#1db954]/20 hover:scale-[1.03] cursor-pointer group focus-within:ring-2 focus-within:ring-[#1db954]"
+        className="bg-card border shadow-md flex flex-col w-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-[#1db954]/20 hover:scale-[1.03] cursor-pointer group focus-within:ring-2 focus-within:ring-[#1db954]"
         onClick={handleOpenDialog}
         role="button"
         tabIndex={0}
@@ -242,21 +242,21 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
             />
           )}
         </div>
-        <CardContent className="p-4 flex flex-col flex-1 min-h-0">
-          <h3 className="text-sm font-semibold text-center mb-2 leading-tight line-clamp-2 min-h-[2.5rem]">
+        <CardContent className="p-2 sm:p-4 flex flex-col flex-1 min-h-0">
+          <h3 className="text-xs sm:text-sm font-semibold text-center mb-1 sm:mb-2 leading-tight line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
             {titleWithYear}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-3 min-h-[3.75rem]">
+          <p className="hidden sm:block text-sm text-muted-foreground line-clamp-3 mb-3 min-h-[3.75rem]">
             {description}
           </p>
-          <div className="mb-4 min-h-[1.5rem]">
+          <div className="mb-2 sm:mb-4 min-h-[1.5rem]">
             <StarRating
               rating={typeof movie.vote_average === "number" ? movie.vote_average : 0}
               size="sm"
             />
           </div>
 
-          <div className="flex items-center gap-5 mt-auto min-h-[2rem]">
+          <div className="flex items-center justify-center gap-3 sm:gap-5 mt-auto min-h-[2rem]">
             <TooltipProvider>
               {page === "discover" && (
                 <>
@@ -264,7 +264,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       {favorite ? (
                         <Heart
-                          className={`w-6 h-6 text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           fill="currentColor"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -273,7 +273,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                         />
                       ) : (
                         <Heart
-                          className={`w-6 h-6 hover:text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 hover:text-red-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToFavorites();
@@ -290,7 +290,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       {inWatchlist ? (
                         <Bookmark
-                          className={`w-6 h-6 text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           fill="currentColor"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -299,7 +299,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                         />
                       ) : (
                         <Bookmark
-                          className={`w-6 h-6 hover:text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 hover:text-blue-500 cursor-pointer ${!isAuthenticated ? 'opacity-50' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToWatchlist();
@@ -319,7 +319,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Heart
-                        className="w-6 h-6 text-red-500 cursor-pointer"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 cursor-pointer"
                         fill="currentColor"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -336,7 +336,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                     <TooltipTrigger asChild>
                       {inWatchlist ? (
                         <Bookmark
-                          className="w-6 h-6 text-blue-500 cursor-pointer"
+                          className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 cursor-pointer"
                           fill="currentColor"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -345,7 +345,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                         />
                       ) : (
                         <Bookmark
-                          className="w-6 h-6 hover:text-blue-500 cursor-pointer"
+                          className="w-5 h-5 sm:w-6 sm:h-6 hover:text-blue-500 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToWatchlist();
@@ -365,7 +365,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Bookmark
-                        className="w-6 h-6 text-blue-500 cursor-pointer"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 cursor-pointer"
                         fill="currentColor"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -381,7 +381,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Eye
-                        className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 hover:text-green-600 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleWatched();
@@ -400,7 +400,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <EyeOff
-                        className="w-6 h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 hover:text-yellow-500 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleUnwatch();
@@ -415,7 +415,7 @@ const MovieCard: FC<MovieCardProps> = React.memo(({ movie, page }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <BookOpen
-                        className={`w-6 h-6 cursor-pointer ${
+                        className={`w-5 h-5 sm:w-6 sm:h-6 cursor-pointer ${
                           hasDiaryEntry
                             ? "text-blue-500 fill-blue-500"
                             : "text-blue-400 hover:text-blue-600"

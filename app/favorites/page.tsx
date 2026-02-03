@@ -97,7 +97,7 @@ export default function Home() {
                 </ul>
                 {isFirebaseConfigured && user && (
                   <div className="mt-6">
-                    <Button onClick={() => { signOut(); setIsMenuOpen(false); }} variant="outline" className="w-full text-red-600 border-red-600 hover:bg-red-600 hover:text-white">
+                    <Button onClick={() => { signOut(); setIsMenuOpen(false); }} variant="outline" className="w-full text-red-500 border-red-500/50 hover:bg-red-500/10 hover:border-red-500 hover:text-red-400 transition-all duration-300 rounded-lg">
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out
                     </Button>

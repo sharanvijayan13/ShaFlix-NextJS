@@ -50,9 +50,9 @@ function Pagination({
   for (let i = start; i <= end; i++) pages.push(i);
 
   return (
-    <div className="flex justify-center items-center gap-3 mt-12 mb-10">
+    <div className="flex justify-center items-center gap-2 sm:gap-3 mt-12 mb-10">
       <button
-        className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-lg flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-lg hover:shadow-[#00E054]/50 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
       >
@@ -61,17 +61,18 @@ function Pagination({
       {pages.map((p) => (
         <button
           key={p}
-          className={`w-10 h-10 text-l rounded-none flex items-center justify-center font-semibold border-2 border-green-600 transition ${p === page
-              ? "bg-white text-green-600 border-white"
-              : "bg-green-600 text-white hover:bg-green-700"
-            }`}
+          className={`w-9 h-9 sm:w-10 sm:h-10 text-sm sm:text-base rounded-lg flex items-center justify-center font-bold border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+            p === page
+              ? "bg-gradient-to-br from-[#00E054] to-[#00c248] text-white border-[#00E054] shadow-lg shadow-[#00E054]/50"
+              : "bg-[#1a1d29] text-gray-300 border-[#2a2e3a] hover:border-[#00E054] hover:text-[#00E054] hover:shadow-md"
+          }`}
           onClick={() => setPage(p)}
         >
           {p}
         </button>
       ))}
       <button
-        className="w-10 h-10 bg-green-600 text-white text-xl rounded-none flex items-center justify-center hover:bg-green-700 transition disabled:opacity-50"
+        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-lg flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-lg hover:shadow-[#00E054]/50 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
       >
@@ -219,9 +220,9 @@ export default function HomeContent({
           !user ? (
             <Button
               onClick={() => setShowAuthDialog(true)}
-              className="hidden md:block bg-[#1db954] hover:bg-[#1ed760] text-white px-6"
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#00E054] to-[#00c248] hover:from-[#00ff66] hover:to-[#00E054] text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-[#00E054]/30 hover:shadow-xl hover:shadow-[#00E054]/50 transition-all duration-300 transform hover:scale-105 active:scale-95 border-0"
             >
-              Sign In
+              <span>Sign In</span>
             </Button>
           ) : (
             <div className="hidden md:flex items-center gap-4">
@@ -371,7 +372,7 @@ export default function HomeContent({
                   </Avatar>
                   <label
                     htmlFor="profile-pic-upload"
-                    className="absolute bottom-0 right-0 h-8 w-8 bg-[#00E054] hover:bg-[#00E054]/90 rounded-full flex items-center justify-center cursor-pointer transition-colors border-2 border-[#1F2428]"
+                    className="absolute bottom-0 right-0 h-8 w-8 bg-gradient-to-br from-[#00E054] to-[#00c248] hover:from-[#00ff66] hover:to-[#00E054] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 border-2 border-[#1F2428] shadow-lg shadow-[#00E054]/50 hover:shadow-xl hover:shadow-[#00E054]/70 transform hover:scale-110 active:scale-95"
                   >
                     <Edit className="w-4 h-4 text-[#14181C]" />
                   </label>
@@ -418,13 +419,13 @@ export default function HomeContent({
               <Button
                 variant="outline"
                 onClick={() => setShowEditDialog(false)}
-                className="border-[#2C3440] hover:border-[#6B7280] hover:bg-transparent"
+                className="border-[#2C3440] hover:border-[#00E054] hover:bg-[#00E054]/10 hover:text-[#00E054] transition-all duration-300 rounded-lg"
               >
                 CANCEL
               </Button>
               <Button
                 onClick={handleSaveProfile}
-                className="bg-[#00E054] hover:bg-[#00E054]/90 text-[#14181C] font-semibold"
+                className="bg-gradient-to-r from-[#00E054] to-[#00c248] hover:from-[#00ff66] hover:to-[#00E054] text-[#14181C] font-semibold shadow-lg shadow-[#00E054]/30 hover:shadow-xl hover:shadow-[#00E054]/50 transition-all duration-300 transform hover:scale-105 active:scale-95 rounded-lg border-0"
               >
                 SAVE CHANGES
               </Button>

@@ -53,12 +53,12 @@ export default function Navbar() {
   return (
     <div className="navbar-container relative z-10">
       {/* Desktop Navigation */}
-      <div className="hidden md:flex text-lg flex-row text-gray-300 items-center justify-end gap-10 mt-7">
+      <div className="hidden md:flex text-base flex-row text-gray-400 items-center justify-end gap-8 mt-6">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300"
+            className="border-b-2 border-transparent hover:border-[#00E054] hover:text-[#00E054] transition-all duration-200 font-medium"
           >
             {link.label}
           </Link>

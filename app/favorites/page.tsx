@@ -174,14 +174,14 @@ export default function Home() {
       </div>
       
       {/* Desktop Navigation Links */}
-      <div className="hidden md:flex text-lg flex-row text-gray-300 items-center justify-end gap-10 mt-7">
-        <Link href="/" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
+      <div className="hidden md:flex text-base flex-row text-gray-400 items-center justify-end gap-8 mt-6">
+        <Link href="/" className="border-b-2 border-transparent hover:border-[#00E054] hover:text-[#00E054] transition-all duration-200 font-medium">
           Discover
         </Link>
-        <Link href="/favorites" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
+        <Link href="/favorites" className="border-b-2 border-transparent hover:border-[#00E054] hover:text-[#00E054] transition-all duration-200 font-medium">
           Favorites
         </Link>
-        <Link href="/watchlist" className="border-b-2 border-transparent hover:border-[#1db954] hover:text-[#1db954] transition-all duration-300">
+        <Link href="/watchlist" className="border-b-2 border-transparent hover:border-[#00E054] hover:text-[#00E054] transition-all duration-200 font-medium">
           Watchlist
         </Link>
       </div>
@@ -189,7 +189,7 @@ export default function Home() {
       <h2 className="text-xl md:text-2xl font-bold mt-5 m-4">
         Favorites
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 max-w-8xl w-full py-1 mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-8xl w-full py-1 mx-auto">
         {favorites.length === 0 ? (
           <EmptyState
             icon={Heart}

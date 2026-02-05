@@ -50,9 +50,9 @@ function Pagination({
   for (let i = start; i <= end; i++) pages.push(i);
 
   return (
-    <div className="flex justify-center items-center gap-2 sm:gap-3 mt-12 mb-10">
+    <div className="flex justify-center items-center gap-2 mt-10 mb-8">
       <button
-        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-lg flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-lg hover:shadow-[#00E054]/50 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
+        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-md flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-md hover:shadow-[#00E054]/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
       >
@@ -61,10 +61,10 @@ function Pagination({
       {pages.map((p) => (
         <button
           key={p}
-          className={`w-9 h-9 sm:w-10 sm:h-10 text-sm sm:text-base rounded-lg flex items-center justify-center font-bold border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 text-sm sm:text-base rounded-md flex items-center justify-center font-semibold border transition-all duration-200 transform hover:scale-105 active:scale-95 ${
             p === page
-              ? "bg-gradient-to-br from-[#00E054] to-[#00c248] text-white border-[#00E054] shadow-lg shadow-[#00E054]/50"
-              : "bg-[#1a1d29] text-gray-300 border-[#2a2e3a] hover:border-[#00E054] hover:text-[#00E054] hover:shadow-md"
+              ? "bg-gradient-to-br from-[#00E054] to-[#00c248] text-white border-[#00E054] shadow-md shadow-[#00E054]/30"
+              : "bg-[#1a1d29] text-gray-300 border-[#2a2e3a] hover:border-[#00E054]/60 hover:text-[#00E054]"
           }`}
           onClick={() => setPage(p)}
         >
@@ -72,7 +72,7 @@ function Pagination({
         </button>
       ))}
       <button
-        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-lg flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-lg hover:shadow-[#00E054]/50 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
+        className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00E054] to-[#00c248] text-white text-xl rounded-md flex items-center justify-center hover:from-[#00ff66] hover:to-[#00E054] hover:shadow-md hover:shadow-[#00E054]/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transform hover:scale-105 active:scale-95"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
       >
@@ -308,13 +308,13 @@ export default function HomeContent({
       </h2>
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 max-w-8xl w-full py-1 mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-8xl w-full py-1 mx-auto">
           {Array.from({ length: 10 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
         </div>
       ) : error ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 max-w-8xl w-full py-1 mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-8xl w-full py-1 mx-auto">
           <ErrorState
             message={error}
             onRetry={() => {
@@ -332,7 +332,7 @@ export default function HomeContent({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 max-w-8xl w-full py-1 mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-8xl w-full py-1 mx-auto">
             {movies.map((movie, index) => (
               <div
                 key={movie.id}

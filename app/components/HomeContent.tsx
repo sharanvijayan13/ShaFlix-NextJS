@@ -130,16 +130,18 @@ export default function HomeContent({
     const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
     // Only update state if it doesn't match the current state to avoid loops
-    setMood(prev => prev !== moodParam ? moodParam : prev);
-    setSearch(prev => prev !== queryParam ? queryParam : prev);
-    setPage(prev => prev !== pageParam ? pageParam : prev);
-  }, [searchParams]);
+    if (mood !== moodParam) setMood(moodParam);
+    if (search !== queryParam) setSearch(queryParam);
+    if (page !== pageParam) setPage(pageParam);
+  }, [searchParams, mood, search, page]);
 
   // 2. Data fetching effect - depends on core state
   useEffect(() => {
     const getMovies = async () => {
       setLoading(true);
       setError(null);
+      // Scroll to top when page changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       try {
         const { results, total_pages } = await fetchMovies(
           mood.toLowerCase(),
@@ -222,7 +224,7 @@ export default function HomeContent({
               onClick={() => setShowAuthDialog(true)}
               className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#00E054] to-[#00c248] hover:from-[#00ff66] hover:to-[#00E054] text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-[#00E054]/30 hover:shadow-xl hover:shadow-[#00E054]/50 transition-all duration-300 transform hover:scale-105 active:scale-95 border-0"
             >
-              <span>Sign In</span>
+              <span>Sign in</span>
             </Button>
           ) : (
             <div className="hidden md:flex items-center gap-4">
@@ -298,8 +300,11 @@ export default function HomeContent({
         <Navbar />
       </div>
 
-      <SearchBar value={search} onChange={setSearch} />
-      <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
+      <div className="mt-6 mb-4 px-4 md:px-0">
+        <SearchBar value={search} onChange={setSearch} />
+      </div>
+      
+      <div className="flex flex-col md:flex-row gap-4 items-center md:items-start px-4 md:px-0">
         <MoodSelector mood={mood} setMood={setMood} />
       </div>
 

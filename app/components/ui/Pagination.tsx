@@ -29,27 +29,29 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
   return (
     <>
       {/* Mobile View */}
-      <div className="sm:hidden flex justify-center items-center gap-2 mt-8">
+      <div className="sm:hidden flex justify-center items-center gap-1.5 mt-8">
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
+          className="h-8 w-8 p-0"
           onClick={() => setPage(Math.max(1, page - 1))}
           disabled={page === 1}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
-        <div className="px-4 py-2 bg-card border rounded-md">
-          <span className="text-sm font-medium">
+        <div className="px-3 py-1.5 bg-card border rounded-md">
+          <span className="text-xs font-medium">
             {page} / {totalPages}
           </span>
         </div>
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
+          className="h-8 w-8 p-0"
           onClick={() => setPage(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 

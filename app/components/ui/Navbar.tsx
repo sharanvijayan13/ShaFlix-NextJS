@@ -155,7 +155,7 @@ export default function Navbar() {
               onClick={() => setShowAuthDialog(true)}
               className="signin-btn"
             >
-              Sign In
+              Sign in
             </button>
           )
         )}

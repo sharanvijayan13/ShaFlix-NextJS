@@ -33,7 +33,7 @@ export function useAuthGuard() {
         
         toast.info(message, {
           action: {
-            label: "Sign In",
+            label: "Sign in",
             onClick: () => setShowAuthDialog(true),
           },
           duration: 4000,
